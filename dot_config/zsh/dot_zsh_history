@@ -1,0 +1,7 @@
+/Users/p298827/Downloads/syncthing-macos-arm64-v1.27.3/syncthing ; exit;
+l
+cd /Applications
+l
+rm WezTerm.app
+rm -rf WezTerm.app
+brew install --cask wezterm
