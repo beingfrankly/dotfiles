@@ -1,0 +1,84 @@
+# Nordic Color Palette
+# Based on https://github.com/AlexvZyl/nordic.nvim
+
+# Blacks
+black0: '#191D24'
+black1: '#1E222A'
+black2: '#222630'
+
+# Grays
+gray0: '#242933'
+gray1: '#2E3440'
+gray2: '#3B4252'
+gray3: '#434C5E'
+gray4: '#4C566A'
+gray5: '#60728A'
+
+# Whites
+white0: '#BBC3D4'
+white1: '#D8DEE9'
+white2: '#E5E9F0'
+white3: '#ECEFF4'
+
+# Blues
+blue0: '#5E81AC'
+blue1: '#81A1C1'
+blue2: '#88C0D0'
+
+# Cyan
+cyan_base: '#8FBCBB'
+cyan_bright: '#9FC6C5'
+cyan_dim: '#80B3B2'
+
+# Red
+red_base: '#BF616A'
+red_bright: '#C5727A'
+red_dim: '#B74E58'
+
+# Orange
+orange_base: '#D08770'
+orange_bright: '#D79784'
+orange_dim: '#CB775D'
+
+# Yellow
+yellow_base: '#EBCB8B'
+yellow_bright: '#EFD49F'
+yellow_dim: '#E7C173'
+
+# Green
+green_base: '#A3BE8C'
+green_bright: '#B1C89D'
+green_dim: '#97B67C'
+
+# Magenta
+magenta_base: '#B48EAD'
+magenta_bright: '#BE9DB8'
+magenta_dim: '#A97EA1'
+
+# Semantic Colors (for consistent usage across tools - 10% increased contrast)
+background: '#1B1F26'       # black1 (darker, more contrast)
+background_dark: '#171A20'  # black0 (darkest)
+foreground: '#DCE1EB'       # white1 (lighter, more contrast)
+foreground_bright: '#EEF1F5' # white3 (brighter)
+selection: '#353B4A'        # gray2 (darker selection)
+comment: '#60728A'          # gray5
+cursor: '#DCE1EB'           # white1
+
+# ANSI Colors for terminals
+ansi_black: '#3B4252'       # gray2
+ansi_red: '#BF616A'         # red_base
+ansi_green: '#A3BE8C'       # green_base
+ansi_yellow: '#EBCB8B'      # yellow_base
+ansi_blue: '#81A1C1'        # blue1
+ansi_magenta: '#B48EAD'     # magenta_base
+ansi_cyan: '#8FBCBB'        # cyan_base
+ansi_white: '#E5E9F0'       # white2
+
+ansi_bright_black: '#4C566A'   # gray4
+ansi_bright_red: '#C5727A'     # red_bright
+ansi_bright_green: '#B1C89D'   # green_bright
+ansi_bright_yellow: '#EFD49F'  # yellow_bright
+ansi_bright_blue: '#88C0D0'    # blue2
+ansi_bright_magenta: '#BE9DB8' # magenta_bright
+ansi_bright_cyan: '#9FC6C5'    # cyan_bright
+ansi_bright_white: '#ECEFF4'   # white3

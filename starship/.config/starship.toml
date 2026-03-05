@@ -1,0 +1,143 @@
+# Starship Configuration - Optimized for Performance
+# Get editor completions based on the config schema
+"$schema" = 'https://starship.rs/config-schema.json'
+
+# Timeout for starship to scan files (milliseconds)
+# Reduced for faster prompt rendering
+scan_timeout = 5
+command_timeout = 200
+
+# Add a newline before the prompt
+add_newline = true
+
+format = """
+[╭─](bold green)$username$hostname$directory$git_branch$git_status$nodejs$python$golang$rust$docker_context
+[╰─](bold green)$character"""
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+[directory]
+truncation_length = 3
+truncate_to_repo = true
+style = "bold cyan"
+read_only = " 󰌾"
+
+[username]
+style_user = "bold yellow"
+style_root = "bold red"
+format = "[$user]($style) "
+disabled = false
+show_always = false
+
+[hostname]
+ssh_only = true
+format = "[@$hostname](bold blue) "
+disabled = false
+
+[git_branch]
+symbol = " "
+format = "on [$symbol$branch]($style) "
+style = "bold purple"
+# Only show first 10 characters of branch name for speed
+truncation_length = 10
+
+[git_status]
+# Ultra-fast minimal format
+format = '([$all_status]($style) )'
+style = "bold red"
+# Simple indicators (no counting)
+conflicted = "="
+ahead = "⇡"
+behind = "⇣"
+diverged = "⇕"
+untracked = "?"
+stashed = "$"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+# Performance optimizations
+ignore_submodules = true
+# Only show when there are changes (faster)
+disabled = false
+# Reduce git operations - only check status on prompt
+upstream_format = ""
+
+# Disable these git modules for performance
+[git_metrics]
+disabled = true
+
+[git_commit]
+disabled = true
+
+[git_state]
+disabled = true
+
+# Language-specific modules (optimized for speed)
+[nodejs]
+symbol = " "
+format = "via [$symbol($version )]($style)"
+# Only show in directories with package.json (much faster)
+disabled = false
+detect_extensions = []
+detect_files = ["package.json"]
+detect_folders = []
+
+[python]
+symbol = " "
+format = 'via [${symbol}($version )]($style)'
+disabled = false
+detect_extensions = []
+detect_files = ["requirements.txt", "pyproject.toml", "Pipfile"]
+detect_folders = []
+
+[golang]
+symbol = " "
+format = "via [$symbol($version )]($style)"
+disabled = false
+detect_extensions = []
+detect_files = ["go.mod", "go.sum"]
+detect_folders = []
+
+[rust]
+symbol = " "
+format = "via [$symbol($version )]($style)"
+disabled = false
+detect_extensions = []
+detect_files = ["Cargo.toml"]
+detect_folders = []
+
+[docker_context]
+symbol = " "
+format = "via [$symbol$context]($style) "
+disabled = false
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+# Disabled modules for performance
+[package]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[terraform]
+disabled = true
+
+[battery]
+disabled = true
+
+[time]
+disabled = true
+
+[cmd_duration]
+min_time = 2_000
+format = "took [$duration](bold yellow) "

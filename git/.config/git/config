@@ -1,0 +1,217 @@
+[user]
+	name = Frank van Eldijk-Smeding
+	email = 2766783+beingfrankly@users.noreply.github.com
+
+[includeIf "gitdir:/Users/Frank.vanEldijk/code/hfs/"]
+	path = ~/.config/git/config-hfs
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+# ===== Performance Settings =====
+[core]
+	# Use filesystem monitor for faster status checks in large repos
+	fsmonitor = true
+	# Cache untracked files for faster git status
+	untrackedCache = true
+	# Prevent unnecessary line ending conversions
+	autocrlf = input
+	# Set editor (uses $EDITOR or $VISUAL if not set)
+	editor = nvim
+	# Improve git diff performance
+	preloadIndex = true
+
+[feature]
+	# Enable faster file-system monitor if available
+	manyFiles = true
+
+# ===== Default Branch =====
+[init]
+	defaultBranch = main
+
+# ===== Push Settings =====
+[push]
+	# Automatically set up remote tracking branch
+	autoSetupRemote = true
+	# Only push current branch (safer than matching)
+	default = current
+	# Push tags along with commits when pushing branches
+	followTags = true
+
+# ===== Pull/Merge Settings =====
+[pull]
+	# Use rebase instead of merge when pulling (cleaner history)
+	rebase = true
+
+[merge]
+	# Show common ancestor in conflict markers (3-way diff)
+	conflictStyle = zdiff3
+	# Automatically resolve conflicts if possible
+	autoStash = true
+
+[rebase]
+	# Automatically stash/unstash when rebasing
+	autoStash = true
+	# Automatically apply fixup commits during interactive rebase
+	autoSquash = true
+
+# ===== Rerere (Reuse Recorded Resolution) =====
+[rerere]
+	# Remember how you resolved merge conflicts
+	enabled = true
+	# Automatically stage resolved conflicts
+	autoUpdate = true
+
+# ===== Diff Settings =====
+[diff]
+	# Use better, more readable diff algorithm
+	algorithm = histogram
+	# Show moved lines in diffs with different colors
+	colorMoved = default
+	# Detect renames
+	renames = true
+
+[diff "bin"]
+	# Treat binary files as binary
+	textconv = hexdump -v -C
+
+# ===== Commit Settings =====
+[commit]
+	# Show diff when writing commit message
+	verbose = true
+	# Sign commits with GPG (optional - comment out if not using)
+	# gpgSign = true
+
+# ===== Fetch Settings =====
+[fetch]
+	# Automatically prune deleted remote branches
+	prune = true
+	# Prune tags that no longer exist on remote
+	pruneTags = true
+	# Write commit graph for better performance
+	writeCommitGraph = true
+
+# ===== Status Settings =====
+[status]
+	# Show submodule summary in git status
+	submoduleSummary = true
+	# Show individual files in untracked directories
+	showUntrackedFiles = all
+
+# ===== Branch Settings =====
+[branch]
+	# Sort branches by most recent commit
+	sort = -committerdate
+
+[tag]
+	# Sort tags by version number
+	sort = version:refname
+
+# ===== Color Settings =====
+[color]
+	ui = auto
+
+[color "diff"]
+	meta = yellow bold
+	commit = green bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+
+[color "branch"]
+	current = yellow reverse
+	local = yellow
+	remote = green
+
+[color "status"]
+	added = green
+	changed = yellow
+	untracked = red
+
+# ===== Useful Aliases =====
+[alias]
+	# Short status
+	s = status -sb
+	
+	# Pretty log with graph
+	l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	
+	# Show last commit
+	last = log -1 HEAD --stat
+	
+	# Undo last commit but keep changes
+	undo = reset --soft HEAD^
+	
+	# Amend last commit
+	amend = commit --amend --no-edit
+	
+	# List aliases
+	aliases = config --get-regexp alias
+	
+	# Show branches sorted by last commit
+	br = branch --sort=-committerdate
+	
+	# Interactive rebase
+	rb = rebase -i
+	
+	# Show what changed in last commit
+	changed = show --stat
+	
+	# Stash with message
+	save = stash push -m
+	
+	# Show stash list with dates
+	stashes = stash list --date=relative
+	
+	# Clean up merged branches
+	cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
+	
+	# Show contributors
+	contributors = shortlog --summary --numbered --email
+	
+	# Find commits by commit message
+	find = "!git log --all --grep"
+	
+	# Show files ignored by git
+	ignored = ls-files --others --ignored --exclude-standard
+
+# ===== URL Shortcuts =====
+[url "git@github.com:"]
+	insteadOf = gh:
+	pushInsteadOf = github:
+	pushInsteadOf = git://github.com/
+
+[url "git@gitlab.com:"]
+	insteadOf = gl:
+	pushInsteadOf = gitlab:
+	pushInsteadOf = git://gitlab.com/
+
+# ===== Help Settings =====
+[help]
+	# Autocorrect typos after 2 seconds
+	autocorrect = 20
+
+# ===== Transfer Settings =====
+[transfer]
+	# Check for data corruption
+	fsckObjects = true
+
+# ===== Submodule Settings =====
+[submodule]
+	# Update submodules recursively
+	recurse = true
+
+# ===== Delta (better diff viewer) =====
+[core]
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+# Delta theme is loaded from included file
+[include]
+	path = ~/.config/theme/delta.gitconfig

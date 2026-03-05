@@ -1,0 +1,99 @@
+# ===== Font Configuration =====
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+adjust-cell-height = 20%
+font-thicken = true
+
+# ===== Cursor =====
+cursor-style = block
+cursor-style-blink = false
+
+# ===== Shell Integration =====
+shell-integration-features = no-cursor,sudo,no-title
+
+# ===== Appearance =====
+background-opacity = 1.0
+background-blur = false
+
+# Teide Darker Theme (loaded from ~/.config/ghostty/themes/teide-darker)
+theme = teide-darker
+
+# Custom shader for cursor effects
+# custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl
+# custom-shader-animation = false
+
+# ===== macOS-specific =====
+macos-titlebar-style = hidden
+macos-option-as-alt = true
+
+# ===== Window Configuration =====
+window-padding-x = 10
+window-padding-y = 10
+window-padding-balance = true
+window-save-state = always
+window-colorspace = display-p3
+
+# Disable dimming for inactive splits
+unfocused-split-opacity = 1
+
+# ===== Mouse Configuration =====
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 2
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+clipboard-paste-protection = false
+
+# ===== Performance =====
+resize-overlay = never
+resize-overlay-duration = 0
+
+# ===== Keybindings =====
+# Splits
+keybind = cmd+d=new_split:right
+keybind = cmd+shift+d=new_split:down
+keybind = cmd+w=close_surface
+
+# Navigate between splits (vim-style)
+keybind = cmd+h=goto_split:left
+keybind = cmd+j=goto_split:bottom
+keybind = cmd+k=goto_split:top
+keybind = cmd+l=goto_split:right
+
+# Resize splits
+keybind = cmd+shift+h=resize_split:left,10
+keybind = cmd+shift+j=resize_split:down,10
+keybind = cmd+shift+k=resize_split:up,10
+keybind = cmd+shift+l=resize_split:right,10
+
+# Tabs
+keybind = cmd+t=new_tab
+keybind = cmd+shift+[=previous_tab
+keybind = cmd+shift+]=next_tab
+keybind = cmd+1=goto_tab:1
+keybind = cmd+2=goto_tab:2
+keybind = cmd+3=goto_tab:3
+keybind = cmd+4=goto_tab:4
+keybind = cmd+5=goto_tab:5
+
+# Windows
+keybind = cmd+n=new_window
+
+# Zoom/Focus
+keybind = cmd+shift+z=toggle_split_zoom
+keybind = cmd+ctrl+f=toggle_fullscreen
+
+# Font size adjustment
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+0=reset_font_size
+
+# Inspector
+keybind = cmd+shift+i=inspector:toggle
+
+# ===== Other Settings =====
+copy-on-select = clipboard
+confirm-close-surface = false
+quit-after-last-window-closed = false
+auto-update = check
+keybind = shift+enter=text:\x1b\r

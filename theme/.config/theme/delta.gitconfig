@@ -1,0 +1,67 @@
+# Teide Darker theme for delta (git diff viewer)
+# Include this in your ~/.gitconfig with:
+# [include]
+#     path = ~/.config/theme/delta.gitconfig
+
+[delta]
+    features = teide-darker
+    side-by-side = true
+    line-numbers = true
+    navigate = true
+
+[delta "teide-darker"]
+    # Minus (deletions) - burgundy tones
+    minus-style                   = syntax "#4f2431"
+    minus-non-emph-style          = syntax "#4f2431"
+    minus-emph-style              = syntax "#7c2b3f"
+    minus-empty-line-marker-style = syntax "#4f2431"
+    line-numbers-minus-style      = "#EE4B6B"
+
+    # Plus (additions) - teal tones
+    plus-style                    = syntax "#294145"
+    plus-non-emph-style           = syntax "#294145"
+    plus-emph-style               = syntax "#3b696c"
+    plus-empty-line-marker-style  = syntax "#294145"
+    line-numbers-plus-style       = "#1BB16E"
+
+    # Line numbers
+    line-numbers-zero-style       = "#474E5C"
+    line-numbers-left-style       = "#474E5C"
+    line-numbers-right-style      = "#474E5C"
+
+    # General
+    file-style = "#FFA064" bold
+    file-decoration-style = "#FFA064" ul
+    hunk-header-style = "#FFE77A" bold
+    hunk-header-decoration-style = "#FFE77A" box
+
+    # Commit
+    commit-style = "#5CCEFF" bold
+    commit-decoration-style = "#5CCEFF" box
+
+    # Whitespace
+    whitespace-error-style = "#F73F64" reverse
+
+    # Blame
+    blame-palette = "#0e1114" "#111418" "#232835" "#31364e"
+    blame-code-style = syntax
+
+    # Merge conflict
+    merge-conflict-begin-symbol = "⮜"
+    merge-conflict-end-symbol = "⮞"
+    merge-conflict-ours-diff-header-style = "#FFE77A" bold
+    merge-conflict-theirs-diff-header-style = "#FFE77A" bold
+
+    # Inline hints
+    inline-hint-style = "#545c7e"
+
+# Teide Darker color reference (25% darker):
+# Background: #111418
+# Selection: #232835
+# Red (deletions): #F73F64, #F97791
+# Green (additions): #38FFA5
+# Orange (files): #FFA064
+# Cyan (info): #5CCEFF
+# Yellow (hunks): #FFE77A
+# Purple (accents): #B2A3FF
+# Gray (line numbers): #474E5C

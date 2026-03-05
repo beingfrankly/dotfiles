@@ -1,0 +1,58 @@
+# Nordic theme for lazygit
+# Copy or symlink to: ~/Library/Application Support/lazygit/config.yml (macOS)
+# Or use: ~/.config/lazygit/config.yml (Linux)
+
+gui:
+  theme:
+    activeBorderColor:
+      - '#81A1C1'  # blue1
+      - bold
+    inactiveBorderColor:
+      - '#353B4A'  # gray2 - darker
+    optionsTextColor:
+      - '#88C0D0'  # blue2
+    selectedLineBgColor:
+      - '#353B4A'  # gray2 - darker
+    selectedRangeBgColor:
+      - '#353B4A'  # gray2 - darker
+    cherryPickedCommitBgColor:
+      - '#8FBCBB'  # cyan
+    cherryPickedCommitFgColor:
+      - '#88C0D0'  # blue2
+    unstagedChangesColor:
+      - '#BF616A'  # red
+    defaultFgColor:
+      - '#D8DEE9'  # white1
+    searchingActiveBorderColor:
+      - '#EBCB8B'  # yellow
+
+  # Author colors for git log
+  authorColors:
+    '*': '#88C0D0'  # blue2 (default)
+
+  # Commit hash colors
+  commitHashColor:
+    - '#B48EAD'  # magenta
+
+  # Branch colors
+  branchColors:
+    - '#81A1C1'  # blue1
+    - '#88C0D0'  # blue2
+    - '#8FBCBB'  # cyan
+    - '#A3BE8C'  # green
+    - '#EBCB8B'  # yellow
+    - '#D08770'  # orange
+    - '#B48EAD'  # magenta
+
+# Color reference (10% increased contrast):
+# Background: #1B1F26 (black1) - darker
+# Selection: #353B4A (gray2) - darker
+# Border: #353B4A (gray2)
+# Blue: #81A1C1 / #88C0D0
+# Cyan: #8FBCBB
+# Red: #BF616A
+# Green: #A3BE8C
+# Yellow: #EBCB8B
+# Orange: #D08770
+# Magenta: #B48EAD
+# White: #DCE1EB

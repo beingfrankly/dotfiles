@@ -1,0 +1,10 @@
+# Stow ignores these by default, but be explicit
+\.git
+\.gitignore
+
+# Repo-level docs and build files (not stowed)
+^README\.md
+^CLI_TOOLS\.md
+^CLAUDE\.md
+^Makefile
+^LICENSE

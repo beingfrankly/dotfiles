@@ -1,0 +1,126 @@
+#!/bin/sh
+alias zsh-update-plugins='find "$ZDOTDIR/plugins" -type d -exec test -e "{}/.git" \; -print0 | xargs -I {} -0 git -C {} pull -q'
+#alias nvimrc='nvim ~/.config/nvim/'
+
+alias vi='nvim'
+
+# ===== Modern CLI Replacements =====
+
+# bat (better cat with syntax highlighting)
+alias cat='bat --style=auto'
+alias catt='bat --style=plain'           # Plain output (no line numbers)
+alias catd='bat --diff'                  # Show diff
+
+# fd (better find)
+alias find='fd'
+
+# ripgrep (better grep) - already installed
+alias grep='rg'
+alias egrep='rg'
+alias fgrep='rg -F'
+
+# dust (better du - disk usage)
+alias du='dust'
+
+# duf (better df - disk free)
+alias df='duf'
+
+# confirm before overwriting something
+alias cp="cp -i"
+alias mv='mv -i'
+alias rm='rm -i'
+
+# get top process eating memory
+alias psmem='ps aux | sort -nr -k 4 | head -5'
+
+# get top process eating cpu
+alias pscpu='ps aux | sort -nr -k 3 | head -5'
+
+# ===== eza (modern ls replacement) =====
+# Basic listing
+alias ls='eza --icons=auto --group-directories-first'
+alias l='eza -lah --icons=auto --group-directories-first'
+alias ll='eza -lh --icons=auto --group-directories-first'
+alias la='eza -lah --icons=auto --group-directories-first'
+
+# Tree views
+alias lt='eza --tree --level=2 --icons=auto'
+alias lt3='eza --tree --level=3 --icons=auto'
+alias lta='eza --tree --icons=auto'
+
+# Git integration
+alias lg='eza -lah --icons=auto --git --group-directories-first'
+alias lgg='eza -lah --icons=auto --git --git-repos --group-directories-first'
+
+# Special listings
+alias lm='eza -lah --icons=auto --sort=modified'           # Sort by modified time
+alias lz='eza -lah --icons=auto --sort=size'                # Sort by size
+alias lx='eza -lah --icons=auto --sort=extension'           # Sort by extension
+
+# git
+alias gs='git status'
+alias gc='git checkout'
+alias gp='git pull'
+alias gP='git push'
+
+# ===== Powerful Combined Aliases =====
+
+# Find and preview files with fzf + bat
+alias preview="fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'"
+
+# Search in files and preview with bat
+alias search="rg --color=always --line-number --no-heading --smart-case . | fzf --ansi --preview 'bat --color=always {1} --highlight-line {2}'"
+
+# Interactive cd with fzf + eza preview
+alias cdi='cd $(fd --type d | fzf --preview "eza --tree --level=2 --color=always {}")'
+
+# Show git changed files with preview
+alias gdiff='git diff --name-only | fzf --preview "git diff --color=always {} | delta"'
+
+# Docker
+alias ds='~/.config/scripts/docker-stop-interactive.sh'
+alias dsa='docker stop $(docker ps -q)'
+alias dra='docker system prune'
+
+# Scripts
+alias run='~/.config/scripts/run-script.sh'
+
+# Zellij session manager - one command for everything
+  zj() {
+    local switch_file="/tmp/zellij_switch_target"
+
+    if [[ -n "$ZELLIJ" ]]; then
+      # Inside Zellij - pick another session to switch to
+      local session=$(zellij list-sessions 2>/dev/null | grep -v "^${ZELLIJ_SESSION_NAME}\$" | fzf --height 40% --reverse --prompt="Switch to: ")
+      if [[ -n "$session" ]]; then
+        echo "$session" > "$switch_file"
+        zellij action detach
+      fi
+      return
+    fi
+
+    # Outside Zellij - show picker
+    local sessions=$(zellij list-sessions 2>/dev/null)
+    local selection=$(printf "%s\n%s" "$sessions" "[+] Create new session" | fzf --height 40% --reverse --prompt="Session: ")
+
+    [[ -z "$selection" ]] && return
+
+    if [[ "$selection" == "[+] Create new session" ]]; then
+      local dir=$(zoxide query -i)
+      [[ -z "$dir" ]] && return
+      selection=$(basename "$dir")
+      CWD="$dir" zellij --layout dev --session "$selection"
+    else
+      zellij attach --force-run-commands "$selection"
+    fi
+
+    # Handle chained switches (when zj is called inside sessions)
+    while [[ -f "$switch_file" ]]; do
+      selection=$(cat "$switch_file")
+      rm "$switch_file"
+      zellij attach --force-run-commands "$selection"
+    done
+  }
+
+# Striive
+alias striive-dockers='docker compose up -d select-app.int.select.loc & docker compose up -d --no-deps portal.select.loc & docker compose up -d --no-deps platform.select.loc & wait'

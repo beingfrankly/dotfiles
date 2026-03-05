@@ -1,0 +1,33 @@
+# Sonokai Andromeda Theme for Ghostty
+# Based on https://github.com/sainnhe/sonokai
+# Black background variant
+#
+# To use this theme, add to your ghostty config:
+#   theme = sonokai-andromeda
+
+# Core Colors (Required)
+background = #000000
+foreground = #e1e3e4
+cursor-color = #e1e3e4
+selection-background = #2d2e2e
+selection-foreground = #e1e3e4
+
+# ANSI Colors (0-7: Normal)
+palette = 0=#181819
+palette = 1=#f76c7c
+palette = 2=#9cd57b
+palette = 3=#e5c463
+palette = 4=#6dcae8
+palette = 5=#ba9cf3
+palette = 6=#60d1dc
+palette = 7=#e1e3e4
+
+# ANSI Colors (8-15: Bright)
+palette = 8=#494a4b
+palette = 9=#ff7a8a
+palette = 10=#ace38b
+palette = 11=#f5d275
+palette = 12=#7dd8f5
+palette = 13=#caacff
+palette = 14=#70e1ec
+palette = 15=#f2f3f4
