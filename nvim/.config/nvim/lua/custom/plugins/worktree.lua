@@ -10,6 +10,39 @@ end
 
 local M = {}
 
+-- Module-local guard so worktrunk JSON-decode warnings do not spam
+local _worktrunk_warn_shown = false
+
+--- Run `git-wt <args> --format=json` and decode the JSON output.
+---@param args string[] arguments AFTER `git-wt`; the helper appends `--format=json`
+---@return table|nil decoded JSON, or nil on missing CLI / shell error / decode failure
+---@return string|nil err_kind nil on success; 'missing' | 'shell_error' | 'decode' on failure
+---@return string|nil err_text raw output for shell_error/decode so the caller can surface it
+function M._worktrunk_json(args)
+  if vim.fn.executable('git-wt') ~= 1 then
+    return nil, 'missing', nil
+  end
+  local cmd = vim.list_extend({ 'git-wt' }, args)
+  table.insert(cmd, '--format=json')
+  local output = vim.fn.systemlist(cmd)
+  if vim.v.shell_error ~= 0 then
+    return nil, 'shell_error', table.concat(output, '\n')
+  end
+  local raw = table.concat(output, '\n')
+  local ok, decoded = pcall(vim.json.decode, raw)
+  if not ok or type(decoded) ~= 'table' then
+    if not _worktrunk_warn_shown then
+      _worktrunk_warn_shown = true
+      vim.notify(
+        'worktree.lua: failed to decode git-wt JSON output; falling back to git --porcelain',
+        vim.log.levels.WARN
+      )
+    end
+    return nil, 'decode', raw
+  end
+  return decoded, nil, nil
+end
+
 -- Configuration
 M.config = {
   save_state = true,
@@ -30,7 +63,9 @@ function M.setup(opts)
 end
 
 ---Parse git worktree list output
----@return table|nil List of worktrees with path, branch, and sha
+---Prefers worktrunk (git-wt) JSON when available; falls back to git --porcelain.
+---@return table|nil List of worktrees with path, branch, sha, is_current, branch_name,
+---                  and (when from worktrunk) ahead, behind, clean, ci_status
 function M.list_worktrees()
   local cwd = vim.fn.getcwd()
 
@@ -40,7 +75,37 @@ function M.list_worktrees()
     return nil
   end
 
-  -- Get worktree list
+  -- ── worktrunk fast-path ───────────────────────────────────────────────────
+  local decoded = M._worktrunk_json({ 'list' })
+  if decoded then
+    local worktrees = {}
+    for _, entry in ipairs(decoded) do
+      -- Skip bare/orphan main entries (entries with no real working tree)
+      if not (entry.is_main and vim.fn.isdirectory(entry.path) ~= 1) then
+        local wt = {
+          path = entry.path,
+          branch = 'refs/heads/' .. (entry.branch or ''),
+          branch_name = entry.branch or 'detached',
+          sha = entry.commit and entry.commit.sha or nil,
+          is_current = entry.is_current == true,
+          -- worktrunk-enriched fields
+          ahead = (entry.main and entry.main.ahead) or 0,
+          behind = (entry.main and entry.main.behind) or 0,
+          clean = (entry.working_tree ~= nil)
+            and (entry.working_tree.staged == 0
+              and entry.working_tree.modified == 0
+              and entry.working_tree.untracked == 0)
+            or false,
+          ci_status = entry.ci and entry.ci.status or nil,
+        }
+        table.insert(worktrees, wt)
+      end
+    end
+    return worktrees
+  end
+  -- fall through to git --porcelain path
+
+  -- ── git-porcelain fallback ────────────────────────────────────────────────
   local output = vim.fn.systemlist 'git worktree list --porcelain'
   if vim.v.shell_error ~= 0 then
     return nil
@@ -74,7 +139,7 @@ function M.list_worktrees()
     return not wt.bare
   end, worktrees)
 
-  -- Add status for each worktree
+  -- Add derived fields
   for _, wt in ipairs(worktrees) do
     wt.is_current = wt.path == cwd
     wt.branch_name = wt.branch and wt.branch:match '([^/]+)$' or 'detached'
@@ -757,8 +822,53 @@ function M.do_delete_worktree(worktree_path)
   end
 end
 
+---Switch to (or create) a worktree for a Bitbucket/GitHub PR via worktrunk
+---@param pr_number string|number PR number (without "pr:" prefix; passed verbatim to worktrunk)
+function M.switch_to_pr(pr_number)
+  if vim.fn.executable('git-wt') ~= 1 then
+    vim.notify('worktrunk (git-wt) is not installed. Run: brew install worktrunk', vim.log.levels.ERROR)
+    return
+  end
+
+  local pr_arg = 'pr:' .. tostring(pr_number)
+  vim.notify('Fetching PR ' .. pr_arg .. ' via worktrunk...', vim.log.levels.INFO)
+
+  local decoded, err_kind, err_text = M._worktrunk_json({ 'switch', pr_arg })
+  if not decoded then
+    if err_kind == 'shell_error' then
+      vim.notify('git-wt switch failed:\n' .. (err_text or ''), vim.log.levels.ERROR)
+    elseif err_kind == 'decode' then
+      vim.notify('Failed to parse git-wt JSON output:\n' .. (err_text or ''), vim.log.levels.ERROR)
+    end
+    return
+  end
+
+  local target_path = decoded.path or (decoded.worktree and decoded.worktree.path)
+  if not target_path or vim.fn.isdirectory(target_path) ~= 1 then
+    vim.notify('git-wt did not return a valid worktree path. Output:\n' .. vim.inspect(decoded), vim.log.levels.ERROR)
+    return
+  end
+
+  M.switch_to_worktree(target_path)
+end
+
+---Prompt for a PR number and switch to its worktree via worktrunk
+function M.pick_pr_and_switch()
+  vim.ui.input({ prompt = 'PR number: ' }, function(input)
+    if not input or input == '' then
+      return
+    end
+    local pr_number = input:match('^%s*#?(%d+)%s*$')
+    if not pr_number then
+      vim.notify('Invalid PR number: ' .. tostring(input), vim.log.levels.WARN)
+      return
+    end
+    M.switch_to_pr(pr_number)
+  end)
+end
+
 ---Generate dashboard section for current worktree
----@return table|nil Dashboard section config or nil if no worktrees
+---@return table[]|nil Array of dashboard section descriptors or nil if no worktrees
 function M.dashboard_section()
   local worktrees = M.list_worktrees()
   if not worktrees or #worktrees == 0 then
@@ -774,20 +884,17 @@ function M.dashboard_section()
   end
 
   local status = M.get_worktree_status(current.path)
-
-  -- Build status badges
-  local status_icon = status.clean and '✓' or '⚠'
+  local status_icon = status.clean and '\u{2713}' or '\u{26A0}'
   local status_text = status.clean and 'clean' or 'dirty'
 
   local ahead_behind = ''
   if status.ahead > 0 then
-    ahead_behind = ahead_behind .. ' ↑' .. status.ahead
+    ahead_behind = ahead_behind .. ' \u{2191}' .. status.ahead
   end
   if status.behind > 0 then
-    ahead_behind = ahead_behind .. ' ↓' .. status.behind
+    ahead_behind = ahead_behind .. ' \u{2193}' .. status.behind
   end
 
-  -- Create items array for the section
   local items = {}
 
   -- Title
@@ -805,12 +912,15 @@ function M.dashboard_section()
     text = {
       { '  ', width = 2 },
       { branch_display, hl = 'SnacksDashboardDesc' },
-      { '  [' .. status_icon .. ' ' .. status_text .. ']', hl = status.clean and 'SnacksDashboardSpecial' or 'SnacksDashboardFooter' },
+      {
+        '  [' .. status_icon .. ' ' .. status_text .. ']',
+        hl = status.clean and 'SnacksDashboardSpecial' or 'SnacksDashboardFooter',
+      },
       { ahead_behind, hl = 'SnacksDashboardKey' },
     },
   })
 
-  -- Show other worktrees if any exist
+  -- Other worktrees, if any
   local others = vim.tbl_filter(function(wt)
     return not wt.is_current
   end, worktrees)
@@ -823,12 +933,11 @@ function M.dashboard_section()
       },
     })
 
-    -- Show up to 3 other worktrees
-    for i, wt in ipairs(vim.list_slice(others, 1, 3)) do
+    for _, wt in ipairs(vim.list_slice(others, 1, 3)) do
       local branch = wt.branch_name or 'unknown'
       table.insert(items, {
         text = {
-          { '    • ', hl = 'SnacksDashboardFooter' },
+          { '    \u{2022} ', hl = 'SnacksDashboardFooter' },
           { branch, hl = 'SnacksDashboardFooter' },
         },
       })
@@ -837,7 +946,7 @@ function M.dashboard_section()
     if #others > 3 then
       table.insert(items, {
         text = {
-          { '    • ', hl = 'SnacksDashboardFooter' },
+          { '    \u{2022} ', hl = 'SnacksDashboardFooter' },
           { '...and ' .. (#others - 3) .. ' more', hl = 'SnacksDashboardFooter' },
         },
       })
