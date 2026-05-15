@@ -5,10 +5,22 @@
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin/lua-language-server/bin:$PATH"
 export PATH="$HOME/.local/bin/jdtls/bin:$PATH"
-export PATH="$HOME/code/hfs/go-hfs/bin:$PATH"
+# go-hfs: resolve binary from current git worktree, fallback to main
+go-hfs() {
+  local root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [[ -n "$root" && -x "$root/go-hfs/bin/go-hfs" ]]; then
+    "$root/go-hfs/bin/go-hfs" "$@"
+  elif [[ -x "$HOME/code/hfs/main/go-hfs/bin/go-hfs" ]]; then
+    "$HOME/code/hfs/main/go-hfs/bin/go-hfs" "$@"
+  else
+    echo "go-hfs: binary not found — run 'make build' in go-hfs/" >&2
+    return 1
+  fi
+}
 export PATH="/opt/homebrew/bin:$PATH"
 export PATH="/Applications/Obsidian.app/Contents/MacOS:$PATH"
-export PATH="$HOME/code/hfs/mcp:$PATH"
+export PATH="$HOME/code/hfs/*/mcp:$PATH"
+
 
 #
 # ===== Editor Configuration =====
@@ -58,7 +70,6 @@ export LC_ALL=en_US.UTF-8
 
 # ===== MCP Server Configuration =====
 export PROJECTS_DIR="$HOME/code"
-export OBSIDIAN_MCP="$HOME/.config/mcp-servers/obsidian/dist"
 export NEOVIM_MCP="$HOME/.config/mcp-servers/neovim"
 export OBSIDIAN_VAULT_PATH="$HOME/Sync/Obsidian/Second Brain"
 
@@ -82,3 +93,10 @@ export SONARLINT_NVIM="8da6072b6ae72c00ce520bb09115ab96822164ee"
 if [[ -f "$HOME/.config/zsh/secrets-hfs.sh" ]]; then
     source "$HOME/.config/zsh/secrets-hfs.sh"
 fi
+
+# ===== Atlas.nvim (Jira + Bitbucket) =====
+# Tokens come from macOS Keychain (service: jira_api_token); see
+# ~/.config/nvim/lua/kickstart/plugins/atlas.lua for the lookup helper.
+export JIRA_URL="https://headfirst.atlassian.net"
+export JIRA_EMAIL="frank.vaneldijk@headfirst.nl"
+export BITBUCKET_USER="frank.vaneldijk@headfirst.nl"
