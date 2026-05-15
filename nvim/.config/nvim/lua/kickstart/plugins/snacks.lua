@@ -25,7 +25,7 @@ require('snacks').setup {
       { section = 'keys', gap = 1, padding = 1 },
       { title = 'Recent Files', section = 'recent_files', limit = 8, cwd = true, indent = 2, padding = 1 },
       function()
-        local ok, worktree = pcall(require, 'custom.plugins.worktree')
+        local ok, worktree = pcall(require, 'lib.worktree')
         if ok then
           return worktree.dashboard_section()
         end

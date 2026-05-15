@@ -58,7 +58,7 @@ function M.check()
   end
 
   -- Check state file
-  local worktree = require 'custom.plugins.worktree'
+  local worktree = require 'lib.worktree'
   local state_dir = vim.fn.fnamemodify(worktree.state_file, ':h')
 
   if vim.fn.isdirectory(state_dir) == 1 then

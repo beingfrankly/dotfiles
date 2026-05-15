@@ -48,6 +48,76 @@ vim.keymap.set('n', '<C-Right>', '<cmd>vertical resize +2<CR>', { desc = 'Increa
 -- Equalize splits
 vim.keymap.set('n', '<leader>=', '<C-w>=', { desc = 'Equalize split sizes' })
 
+-- ═══════════════════════════════════════════════════════════
+-- ERGONOMIC NAVIGATION
+-- ═══════════════════════════════════════════════════════════
+
+-- Line start/end (Helix-inspired, more comfortable than $ and ^)
+vim.keymap.set('n', 'gl', '$', { desc = 'Go to end of line' })
+vim.keymap.set('n', 'gh', '^', { desc = 'Go to start of line' })
+
+-- Smart j/k: visual lines when no count, real lines with count
+vim.keymap.set({ 'n', 'x' }, 'j', "v:count == 0 ? 'gj' : 'j'", { desc = 'Down', expr = true, silent = true })
+vim.keymap.set({ 'n', 'x' }, 'k', "v:count == 0 ? 'gk' : 'k'", { desc = 'Up', expr = true, silent = true })
+
+-- Smart n/N: n always forward, N always backward
+vim.keymap.set('n', 'n', "'Nn'[v:searchforward].'zv'", { expr = true, desc = 'Next Search Result' })
+vim.keymap.set('x', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
+vim.keymap.set('o', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
+vim.keymap.set('n', 'N', "'nN'[v:searchforward].'zv'", { expr = true, desc = 'Prev Search Result' })
+vim.keymap.set('x', 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev Search Result' })
+vim.keymap.set('o', 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev Search Result' })
+
+-- ═══════════════════════════════════════════════════════════
+-- LINE MOVEMENT
+-- ═══════════════════════════════════════════════════════════
+
+-- Move lines up/down with Alt+j/k (with count support + auto-indent)
+vim.keymap.set('n', '<A-j>', "<cmd>execute 'move .+' . v:count1<cr>==", { desc = 'Move Down' })
+vim.keymap.set('n', '<A-k>', "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = 'Move Up' })
+vim.keymap.set('i', '<A-j>', '<esc><cmd>m .+1<cr>==gi', { desc = 'Move Down' })
+vim.keymap.set('i', '<A-k>', '<esc><cmd>m .-2<cr>==gi', { desc = 'Move Up' })
+vim.keymap.set('v', '<A-j>', ":move '>+1<CR>gv=gv", { desc = 'Move Down' })
+vim.keymap.set('v', '<A-k>', ":move '<-2<CR>gv=gv", { desc = 'Move Up' })
+
+-- ═══════════════════════════════════════════════════════════
+-- SMART EDITING
+-- ═══════════════════════════════════════════════════════════
+
+-- Better indenting (stay in visual mode)
+vim.keymap.set('v', '<', '<gv')
+vim.keymap.set('v', '>', '>gv')
+
+-- Better paste (doesn't replace clipboard with deleted text)
+vim.keymap.set('v', 'p', '"_dP')
+
+-- Undo break-points at logical stops
+vim.keymap.set('i', ',', ',<c-g>u')
+vim.keymap.set('i', '.', '.<c-g>u')
+vim.keymap.set('i', ';', ';<c-g>u')
+
+-- ═══════════════════════════════════════════════════════════
+-- UTILITY
+-- ═══════════════════════════════════════════════════════════
+
+-- Save file (works in all modes)
+vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save File' })
+
+-- Redraw / Clear hlsearch / Diff Update
+vim.keymap.set('n', '<leader>ur', '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>', { desc = 'Redraw / Clear hlsearch / Diff Update' })
+
+-- Terminal mode navigation
+vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>', { desc = 'Enter Normal Mode' })
+vim.keymap.set('t', '<C-h>', '<cmd>wincmd h<cr>', { desc = 'Go to Left Window' })
+vim.keymap.set('t', '<C-j>', '<cmd>wincmd j<cr>', { desc = 'Go to Lower Window' })
+vim.keymap.set('t', '<C-k>', '<cmd>wincmd k<cr>', { desc = 'Go to Upper Window' })
+vim.keymap.set('t', '<C-l>', '<cmd>wincmd l<cr>', { desc = 'Go to Right Window' })
+
+-- Smart fold navigation
+vim.keymap.set('n', 'zv', 'zMzvzz', { desc = 'Close all folds except the current one' })
+vim.keymap.set('n', 'zj', 'zcjzOzz', { desc = 'Close current fold, open next fold' })
+vim.keymap.set('n', 'zk', 'zckzOzz', { desc = 'Close current fold, open previous fold' })
+
 -- Execute find_project_dirs function from scopes plugin
 -- vim.keymap.set('n', '<leader>fp', function()
 --   local scopes = require('kickstart.plugins.scopes')
@@ -58,13 +128,18 @@ vim.keymap.set('n', '<leader>=', '<C-w>=', { desc = 'Equalize split sizes' })
 
 -- Git worktree picker
 vim.keymap.set('n', '<leader>gw', function()
-  require('custom.plugins.worktree').pick_worktree()
+  require('lib.worktree').pick_worktree()
 end, { desc = '[G]it [W]orktrees' })
 
 -- Git remote branch picker (create worktree)
 vim.keymap.set('n', '<leader>gr', function()
-  require('custom.plugins.worktree').pick_remote_branch()
+  require('lib.worktree').pick_remote_branch()
 end, { desc = '[G]it [R]emote branches (create worktree)' })
+
+-- Git worktree: switch to PR via worktrunk
+vim.keymap.set('n', '<leader>gP', function()
+  require('lib.worktree').pick_pr_and_switch()
+end, { desc = 'Worktree: switch to PR' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
