@@ -964,4 +964,48 @@ function M.dashboard_section()
   return items
 end
 
+---Health check exposed via `:checkhealth custom.plugins.worktree`.
+---Probes the four runtime dependencies. plenary is required (module
+---degrades to a no-op without it). snacks is required for pick_worktree.
+---git is required for the porcelain fallback. git-wt (worktrunk) is
+---optional — its absence is a warn, not an error.
+function M.health()
+  vim.health.start('custom.plugins.worktree')
+
+  local plen_ok = pcall(require, 'plenary.job')
+  if plen_ok then
+    vim.health.ok('plenary.nvim is installed')
+  else
+    vim.health.error('plenary.nvim is missing — module degrades to {}', {
+      'Install plenary.nvim (e.g., add to vim.pack.add).',
+    })
+  end
+
+  local snacks_ok = pcall(require, 'snacks')
+  if snacks_ok then
+    vim.health.ok('snacks.nvim is installed (pick_worktree uses snacks.picker)')
+  else
+    vim.health.error('snacks.nvim is missing — pick_worktree will notify and bail', {
+      'Install snacks.nvim or stop calling pick_worktree.',
+    })
+  end
+
+  if vim.fn.executable('git') == 1 then
+    vim.health.ok('git is on PATH')
+  else
+    vim.health.error('git is not on PATH — list_worktrees and status helpers will fail', {
+      'Install git and ensure it is on PATH.',
+    })
+  end
+
+  if vim.fn.executable('git-wt') == 1 then
+    vim.health.ok('git-wt (worktrunk) is on PATH — JSON fast-path active')
+  else
+    vim.health.warn('git-wt (worktrunk) is not on PATH — falling back to git --porcelain', {
+      'Optional: brew install worktrunk (or your distribution equivalent) to enable',
+      'the worktrunk fast-path used by list_worktrees and switch_to_pr.',
+    })
+  end
+end
+
 return M
