@@ -519,34 +519,32 @@ function M.pick_worktree()
     return
   end
 
-  -- Get status for each worktree asynchronously
+  -- Get status for each worktree (async for porcelain path, instant when worktrunk pre-populated)
   local items = {}
   local pending = #worktrees
   local picker_opened = false
 
+  local function add_item(wt, status)
+    local item = M.format_worktree_item(wt, status)
+    table.insert(items, item)
+    pending = pending - 1
+    if pending == 0 and not picker_opened then
+      picker_opened = true
+      M.open_picker(snacks, items)
+    end
+  end
+
   for _, wt in ipairs(worktrees) do
-    -- Use synchronous status for current worktree (fast)
-    if wt.is_current then
-      local status = M.get_worktree_status(wt.path)
-      local item = M.format_worktree_item(wt, status)
-      table.insert(items, item)
-      pending = pending - 1
-
-      if pending == 0 and not picker_opened then
-        picker_opened = true
-        M.open_picker(snacks, items)
-      end
+    if wt.clean ~= nil then
+      -- worktrunk fast-path already populated clean/ahead/behind; skip git calls
+      add_item(wt, { clean = wt.clean, ahead = wt.ahead, behind = wt.behind })
+    elseif wt.is_current then
+      -- Sync status for current worktree (fast)
+      add_item(wt, M.get_worktree_status(wt.path))
     else
-      -- Use async status for other worktrees (non-blocking)
+      -- Async status for other worktrees (non-blocking)
       M.get_worktree_status_async(wt.path, function(status)
-        local item = M.format_worktree_item(wt, status)
-        table.insert(items, item)
-        pending = pending - 1
-
-        if pending == 0 and not picker_opened then
-          picker_opened = true
-          M.open_picker(snacks, items)
-        end
+        add_item(wt, status)
       end)
     end
   end
