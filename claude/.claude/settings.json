@@ -1,0 +1,467 @@
+{
+  "cleanupPeriodDays": 99999,
+  "permissions": {
+    "allow": [
+      "Bash(bd:*)",
+      "Read(//Users/Frank.vanEldijk/.claude/**)",
+      "Read(//Users/Frank.vanEldijk/Sync/Obsidian/Second Brain/**)",
+      "Bash(eza:*)",
+      "WebSearch",
+      "Bash(nvim:*)",
+      "Read(//opt/homebrew/Cellar/neovim/0.11.2/share/nvim/runtime/doc/**)",
+      "Read(//opt/homebrew/share/nvim/runtime/doc/**)",
+      "Read(//Users/Frank.vanEldijk/Downloads/neovim-config-extracted/neovim-config/references/**)",
+      "Read(//Users/Frank.vanEldijk/code/hfs/striive-portals/apps/striive-components/src/lib/address-form/**)",
+      "Read(//Users/Frank.vanEldijk/code/hfs/striive-portals/**)",
+      "Skill(skill-creator)",
+      "Skill(worktrunk)",
+      "Skill(wt-switch-create)",
+      "EnterWorktree",
+      "ExitWorktree",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Read(//Users/Frank.vanEldijk/.local/share/nvim/jdtls-workspace/hfs/.metadata/**)",
+      "Bash(bat:*)",
+      "Bash(brew services:*)",
+      "AskUserQuestion",
+      "ExitPlanMode",
+      "Bash(jq:*)",
+      "Bash(wc:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(git merge:*)",
+      "Bash(git stash:*)",
+      "Bash(git rebase:*)",
+      "Bash(git push:*)",
+      "Bash(wt list:*)",
+      "Bash(wt switch:*)",
+      "Bash(wt remove:*)",
+      "Bash(wt merge:*)",
+      "Bash(wt config:*)",
+      "Bash(wt step:*)",
+      "Bash(wt hook:*)",
+      "Bash(wt --help:*)",
+      "Bash(git-wt list:*)",
+      "Bash(git-wt switch:*)",
+      "Bash(git-wt remove:*)",
+      "Bash(git-wt merge:*)",
+      "Bash(git-wt config:*)",
+      "Bash(git-wt step:*)",
+      "Bash(git-wt hook:*)",
+      "Bash(git-wt --help:*)",
+      "Bash(obsidian:*)",
+      "WebFetch(domain:angular.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:code.claude.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:maven.apache.org)",
+      "Write(//Users/Frank.vanEldijk/Sync/Obsidian/Second Brain/**)",
+      "Edit(//Users/Frank.vanEldijk/Sync/Obsidian/Second Brain/**)",
+      "Write(//Users/Frank.vanEldijk/.claude/**)",
+      "Edit(//Users/Frank.vanEldijk/.claude/**)",
+      "mcp__hfs-api__hfs_docker_logs",
+      "mcp__hfs-api__hfs_docker_ps",
+      "mcp__hfs-api__hfs_service_health",
+      "mcp__HubSpotDev__fetch-doc",
+      "mcp__HubSpotDev__search-docs"
+    ],
+    "deny": [],
+    "ask": [],
+    "defaultMode": "acceptEdits"
+  },
+  "hooks": {
+    "ConfigChange": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-hook-guard/target/release/claude-hook-guard",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/enforce-orchestrator.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/code/hooked/target/release/hooked gate",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Glob|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-hook-guard/target/release/claude-hook-guard",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bd prime"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/coverage-autowrite.sh",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/tools/claude-capture/target/release/claude-capture",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/ccline/ccline",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "claude-md-management@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "code-reviewer@claude-skills-marketplace": false,
+    "code-simplifier@claude-plugins-official": false,
+    "codex@openai-codex": true,
+    "commit-commands@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": false,
+    "double-shot-latte@superpowers-marketplace": false,
+    "frontend-design@claude-plugins-official": true,
+    "gopls-lsp@claude-plugins-official": true,
+    "gopls@claude-code-lsps": false,
+    "jdtls-lsp@claude-plugins-official": true,
+    "jdtls@claude-code-lsps": false,
+    "kotlin-lsp@claude-code-lsps": true,
+    "loom@loom": false,
+    "lua-lsp@claude-plugins-official": true,
+    "obsidian@obsidian-skills": true,
+    "playground@claude-plugins-official": true,
+    "review-skill@claude-skills-marketplace": true,
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "serena@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": true,
+    "slack@claude-plugins-official": true,
+    "striive-analyse-error@claude-skills-marketplace": true,
+    "striive-create-pr@claude-skills-marketplace": true,
+    "striive-e2e-investigator@claude-skills-marketplace": true,
+    "striive-frontend@claude-skills-marketplace": true,
+    "striive-generate-skill-workflow-diagrams@claude-skills-marketplace": true,
+    "striive-go-hfs@claude-skills-marketplace": true,
+    "striive-implement-work-item@claude-skills-marketplace": true,
+    "striive-mcp-atlassian@claude-skills-marketplace": true,
+    "striive-mcp-bitbucket@claude-skills-marketplace": true,
+    "striive-prepare-skill-for-marketplace@claude-skills-marketplace": true,
+    "striive-review-pr@claude-skills-marketplace": true,
+    "striive-review-rule@claude-skills-marketplace": true,
+    "striive-test-plan-generator@claude-skills-marketplace": true,
+    "striive-test-quality@claude-skills-marketplace": true,
+    "superpowers-developing-for-claude-code@superpowers-marketplace": false,
+    "superpowers@claude-plugins-official": false,
+    "superpowers@superpowers-marketplace": false,
+    "typescript-lsp@claude-plugins-official": false,
+    "vscode-langservers@claude-code-lsps": true,
+    "worktrunk@worktrunk": true,
+    "vtsls@claude-code-lsps": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-code-lsps": {
+      "source": {
+        "source": "github",
+        "repo": "Piebald-AI/claude-code-lsps"
+      }
+    },
+    "claude-skills-marketplace": {
+      "source": {
+        "source": "git",
+        "url": "https://hfg.ghe.com/engineering/claude-skills-marketplace.git"
+      },
+      "autoUpdate": true
+    },
+    "obsidian-skills": {
+      "source": {
+        "source": "github",
+        "repo": "kepano/obsidian-skills"
+      }
+    },
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    },
+    "worktrunk": {
+      "source": {
+        "source": "github",
+        "repo": "max-sixty/worktrunk"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "skipWorkflowUsageWarning": true,
+  "editorMode": "normal",
+  "preferredNotifChannel": "ghostty",
+  "autoCompactEnabled": false,
+  "agentPushNotifEnabled": true,
+  "useAutoModeDuringPlan": false,
+  "voiceEnabled": true
+}
