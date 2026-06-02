@@ -4,6 +4,7 @@ description: >
   Delegation-first orchestrator for exploration, planning, persistence, and
   execution. Tracks progress in bd, delegates all implementation work, and
   never edits files or runs shell commands directly.
+permissionMode: bypassPermissions
 skills:
   - beads-workflow
   - orchestration-planning
