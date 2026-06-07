@@ -1,0 +1,69 @@
+#!/usr/bin/env zsh
+# ~/.config/zsh/zsh-functions - Shell function definitions
+
+# ---------------------------------------------------------------------------
+# nvim-test — launch Neovim against a dotfiles worktree's nvim config
+#
+# Usage: nvim-test [-s|--shared] [worktree-path]
+#   worktree-path  Path to the dotfiles worktree (default: $PWD)
+#
+# FRESH mode (default):
+#   Fully isolated XDG dirs under a mktemp sandbox.  Plugins reinstall
+#   from scratch on every run — the most honest validation of your config.
+#
+# SHARED mode (-s / --shared):
+#   Reuses the live XDG_DATA_HOME so already-installed plugins are
+#   available immediately (fast iteration).  XDG_STATE_HOME and
+#   XDG_CACHE_HOME are still sandboxed to avoid clobbering live state.
+# ---------------------------------------------------------------------------
+nvim-test() {
+  local shared=0
+  local worktree_path="$PWD"
+
+  # Parse arguments
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -s|--shared)
+        shared=1
+        shift
+        ;;
+      -*)
+        print -u2 "nvim-test: unknown option '$1'"
+        print -u2 "Usage: nvim-test [-s|--shared] [worktree-path]"
+        return 1
+        ;;
+      *)
+        worktree_path="$1"
+        shift
+        ;;
+    esac
+  done
+
+  local config_dir="${worktree_path}/nvim/.config/nvim"
+
+  if [[ ! -f "${config_dir}/init.lua" ]]; then
+    print -u2 "nvim-test: init.lua not found at '${config_dir}/init.lua'"
+    print -u2 "  Make sure worktree-path points to a dotfiles worktree containing nvim/.config/nvim/init.lua"
+    return 1
+  fi
+
+  local sandbox
+  sandbox="$(mktemp -d)"
+
+  if [[ shared -eq 1 ]]; then
+    # SHARED mode: reuse live data dir, sandbox only state and cache
+    local live_data="${XDG_DATA_HOME:-$HOME/.local/share}"
+    XDG_CONFIG_HOME="${worktree_path}/nvim/.config" \
+    XDG_DATA_HOME="${live_data}" \
+    XDG_STATE_HOME="${sandbox}/state" \
+    XDG_CACHE_HOME="${sandbox}/cache" \
+      nvim
+  else
+    # FRESH mode: fully isolated — plugins reinstall from scratch
+    XDG_CONFIG_HOME="${worktree_path}/nvim/.config" \
+    XDG_DATA_HOME="${sandbox}/data" \
+    XDG_STATE_HOME="${sandbox}/state" \
+    XDG_CACHE_HOME="${sandbox}/cache" \
+      nvim
+  fi
+}

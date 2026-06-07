@@ -131,6 +131,11 @@ if [[ -f "$ZDOTDIR/zsh-aliases" ]]; then
     source "$ZDOTDIR/zsh-aliases"
 fi
 
+# Load shell functions
+if [[ -f "$ZDOTDIR/zsh-functions" ]]; then
+    source "$ZDOTDIR/zsh-functions"
+fi
+
 # ===== Plugins via Zinit =====
 # Syntax highlighting (critical - load immediately, must be before autosuggestions)
 zinit light zsh-users/zsh-syntax-highlighting
@@ -247,3 +252,9 @@ esac
 if [[ -f $(brew --prefix asdf)/libexec/asdf.sh ]]; then
     . $(brew --prefix asdf)/libexec/asdf.sh
 fi
+
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+# Added by go-hfs setup --mcp
+export PATH="$PATH:/Users/Frank.vanEldijk/code/hfs/*/mcp"
+# Added by go-hfs setup --mcp
+export PATH="$PATH:/Users/Frank.vanEldijk/code/hfs/II-7050-company-type-fix/mcp"

@@ -618,3 +618,12 @@ Run: `brew services restart sketchybar`
 - **Ghostty**: https://ghostty.org/docs
 - **Kickstart.nvim**: https://github.com/nvim-lua/kickstart.nvim
 - **Obsidian vault**: `~/Sync/Obsidian/Second Brain`
+
+## Auto-Restow Git Hook
+
+`.githooks/post-merge` runs `make restow` after every merge so newly tracked dotfiles get
+symlinked automatically. `core.hooksPath=.githooks` (re-asserted in `make install`).
+**Beads shares this path** — `.githooks/` holds all 5 beads hooks chaining to
+`bd hooks run <name>`; preserve the `BEGIN/END BEADS INTEGRATION` blocks when editing any hook.
+
+For Neovim config testing (`nvim-test`), see `references/nvim.md`.

@@ -13,6 +13,7 @@ ALL := $(STANDARD) $(NO_FOLD)
 install: ## Stow all packages
 	$(STOW) $(STANDARD)
 	$(STOW) --no-folding $(NO_FOLD)
+	git -C $(HOME)/.dotfiles config core.hooksPath .githooks
 
 uninstall: ## Unstow all packages
 	$(STOW) -D $(ALL)
