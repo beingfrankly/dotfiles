@@ -367,6 +367,9 @@
       }
     ]
   },
+  "worktree": {
+    "baseRef": "fresh"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.claude/ccline/ccline",
@@ -417,7 +420,8 @@
     "typescript-lsp@claude-plugins-official": false,
     "vscode-langservers@claude-code-lsps": true,
     "worktrunk@worktrunk": true,
-    "vtsls@claude-code-lsps": true
+    "vtsls@claude-code-lsps": true,
+    "striive-reflection@claude-skills-marketplace": true
   },
   "extraKnownMarketplaces": {
     "claude-code-lsps": {
@@ -431,7 +435,7 @@
         "source": "git",
         "url": "https://hfg.ghe.com/engineering/claude-skills-marketplace.git"
       },
-      "autoUpdate": true
+      "autoUpdate": false
     },
     "obsidian-skills": {
       "source": {
@@ -452,15 +456,17 @@
       }
     }
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
   "skipWorkflowUsageWarning": true,
+  "theme": "auto",
   "editorMode": "normal",
   "preferredNotifChannel": "ghostty",
-  "autoCompactEnabled": false,
+  "autoCompactEnabled": true,
+  "remoteControlAtStartup": true,
   "agentPushNotifEnabled": true,
   "useAutoModeDuringPlan": false,
   "voiceEnabled": true

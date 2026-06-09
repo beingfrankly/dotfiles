@@ -1,4 +1,4 @@
-vim.lsp.config['vtsls'] = {
+return {
   -- Command and arguments to start the server.
   cmd = { 'vtsls', '--stdio' },
   filetypes = {

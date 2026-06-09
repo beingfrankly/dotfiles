@@ -11,18 +11,18 @@ after-login-command = []
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
 
 # Start sketchybar and borders when starting aerospace
-after-startup-command = [
-	'exec-and-forget sketchybar',
-  "exec-and-forget borders active_color=0xff000000 inactive_color=0xff000000 width=3 order=above"
-]
-
-# Notify Sketchybar about workspace change
-exec-on-workspace-change = ['/bin/bash', '-c',
-  'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE'
-]
+# after-startup-command = [
+# 	'exec-and-forget sketchybar',
+#   "exec-and-forget borders active_color=0xff000000 inactive_color=0xff000000 width=3 order=above"
+# ]
+#
+# # Notify Sketchybar about workspace change
+# exec-on-workspace-change = ['/bin/bash', '-c',
+#   'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE PREV_WORKSPACE=$AEROSPACE_PREV_WORKSPACE'
+# ]
 
 # Start AeroSpace at login
-start-at-login = true
+start-at-login = false
 
 # Normalizations. See: https://nikitabobko.github.io/AeroSpace/guide#normalization
 enable-normalization-flatten-containers = true

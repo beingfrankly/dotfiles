@@ -8,15 +8,11 @@ if not vim.env.NVIM then
 end
 
 if vim.env.PROF then
-  -- example for lazy.nvim
-  -- change this to the correct path for your plugin manager
-  local snacks = vim.fn.stdpath("data") .. "/lazy/snacks.nvim"
+  local snacks = vim.fn.stdpath('data') .. '/site/pack/core/opt/snacks.nvim'
   vim.opt.rtp:append(snacks)
-  require("snacks.profiler").startup({
+  require('snacks.profiler').startup({
     startup = {
-      event = "VimEnter", -- stop profiler on this event. Defaults to `VimEnter`
-      -- event = "UIEnter",
-      -- event = "VeryLazy",
+      event = 'VimEnter',
     },
   })
 end
@@ -122,18 +118,18 @@ require 'options'
 -- [[ Basic Keymaps ]]
 require 'keymaps'
 
--- [[ Install `lazy.nvim` plugin manager ]]
-require 'lazy-bootstrap'
+-- [[ Install and load plugins via vim.pack ]]
+require 'pack'
 
--- [[ Configure and install plugins ]]
-require 'lazy-plugins'
-
--- local capabilities = vim.lsp.protocol.make_client_capabilities()
---
--- capabilities = vim.tbl_deep_extend('force', capabilities, require('blink.cmp').get_lsp_capabilities({}, false))
+-- Apply blink.cmp's enhanced LSP capabilities to every server enabled via vim.lsp.enable.
+-- Several servers (notably jdtls) return a much richer completion set when the client
+-- advertises snippetSupport, resolveSupport, and completionList.itemDefaults.
+vim.lsp.config('*', {
+  capabilities = require('blink.cmp').get_lsp_capabilities(nil, true),
+})
 
 vim.lsp.enable {
-  'luals',
+  'lua_ls',
   'tsgo',
   'astro',
   'html',

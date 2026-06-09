@@ -249,35 +249,32 @@ local function setup()
     vim.notify('Java extras log cleared', vim.log.levels.INFO)
   end, { desc = 'Clear Java extras debug log' })
 
-  -- Setup autocmd for Java files
-  vim.api.nvim_create_autocmd('FileType', {
-    pattern = 'java',
-    callback = function(ev)
-      local bufnr = ev.buf
-      log:info('filetype-autocmd', 'Setting up Java buffer', { bufnr = bufnr })
-
-      -- Override K mapping for enhanced hover
-      vim.keymap.set('n', 'K', show_class_hover, {
-        buffer = bufnr,
-        desc = 'Show enhanced Java hover',
-        silent = true,
-      })
-
-      log:debug('filetype-autocmd', 'Keymaps set for buffer', { bufnr = bufnr })
-    end,
-  })
+  -- Disabled: the custom K override was based on textDocument/definition + class-body extraction
+  -- and shadowed jdtls's textDocument/hover, leaving methods/fields/locals/parameters/primitives
+  -- without a proper type+Javadoc popup. Re-enable once show_class_hover is reworked to use
+  -- textDocument/hover (or expose it under a separate keymap).
+  --
+  -- -- Setup autocmd for Java files
+  -- vim.api.nvim_create_autocmd('FileType', {
+  --   pattern = 'java',
+  --   callback = function(ev)
+  --     local bufnr = ev.buf
+  --     log:info('filetype-autocmd', 'Setting up Java buffer', { bufnr = bufnr })
+  --
+  --     -- Override K mapping for enhanced hover
+  --     vim.keymap.set('n', 'K', show_class_hover, {
+  --       buffer = bufnr,
+  --       desc = 'Show enhanced Java hover',
+  --       silent = true,
+  --     })
+  --
+  --     log:debug('filetype-autocmd', 'Keymaps set for buffer', { bufnr = bufnr })
+  --   end,
+  -- })
 
   log:info('setup', 'Java extras setup complete')
 end
 
--- Plugin specification
-return {
-  name = 'java-extras',
-  dir = vim.fn.stdpath 'config' .. '/lua/kickstart/plugins',
-  ft = { 'java' },
-  config = function()
-    vim.g.java_extras_debug = true
-    setup()
-    vim.notify('Java extras loaded (debug mode enabled)', vim.log.levels.INFO)
-  end,
-}
+-- Setup (the FileType autocmd inside setup() handles deferred loading)
+vim.g.java_extras_debug = true
+setup()

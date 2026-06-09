@@ -1,14 +1,15 @@
--- Health check for git worktree plugin
+-- Health check for the lib.worktree module.
+-- Surfaced via `:checkhealth lib.worktree`.
 
 local M = {}
 
 function M.check()
-  vim.health.start 'Git Worktree Plugin'
+  vim.health.start('lib.worktree')
 
   -- Check plenary.nvim
-  local has_plenary, plenary = pcall(require, 'plenary')
+  local has_plenary, _ = pcall(require, 'plenary')
   if has_plenary then
-    vim.health.ok 'plenary.nvim is installed'
+    vim.health.ok('plenary.nvim is installed')
   else
     vim.health.error('plenary.nvim is required', {
       'Install with: { "nvim-lua/plenary.nvim" }',
@@ -16,19 +17,19 @@ function M.check()
   end
 
   -- Check git
-  if vim.fn.executable 'git' == 1 then
-    local version = vim.fn.system 'git --version'
+  if vim.fn.executable('git') == 1 then
+    local version = vim.fn.system('git --version')
     vim.health.ok('git is installed: ' .. version:gsub('\n', ''))
   else
-    vim.health.error 'git is not installed'
+    vim.health.error('git is not installed')
   end
 
   -- Check snacks.nvim
   local has_snacks, snacks = pcall(require, 'snacks')
   if has_snacks then
-    vim.health.ok 'snacks.nvim is installed'
+    vim.health.ok('snacks.nvim is installed')
     if snacks.picker then
-      vim.health.ok 'snacks.picker is available'
+      vim.health.ok('snacks.picker is available')
     else
       vim.health.warn('snacks.picker is not enabled', {
         'Enable in your config: picker = { enabled = true }',
@@ -41,24 +42,34 @@ function M.check()
     })
   end
 
+  -- wt (worktrunk) — optional fast-path. Warn, not error.
+  if vim.fn.executable('wt') == 1 then
+    vim.health.ok('wt (worktrunk) is on PATH — JSON fast-path active')
+  else
+    vim.health.warn('wt (worktrunk) is not on PATH — falling back to git --porcelain', {
+      'Optional: brew install worktrunk (or your distribution equivalent) to enable',
+      'the worktrunk fast-path used by list_worktrees and switch_to_pr.',
+    })
+  end
+
   -- Check if in a git repository
-  local git_dir = vim.fn.systemlist 'git rev-parse --git-dir 2>/dev/null'[1]
+  local git_dir = vim.fn.systemlist('git rev-parse --git-dir 2>/dev/null')[1]
   if vim.v.shell_error == 0 then
-    vim.health.ok('Inside a git repository: ' .. git_dir)
+    vim.health.ok('Inside a git repository: ' .. (git_dir or ''))
 
     -- Check for worktrees
-    local worktrees = vim.fn.systemlist 'git worktree list'
+    local worktrees = vim.fn.systemlist('git worktree list')
     if vim.v.shell_error == 0 and #worktrees > 0 then
       vim.health.ok(#worktrees .. ' worktree(s) found')
     else
-      vim.health.info 'No worktrees found'
+      vim.health.info('No worktrees found')
     end
   else
-    vim.health.info 'Not in a git repository'
+    vim.health.info('Not in a git repository')
   end
 
   -- Check state file
-  local worktree = require 'lib.worktree'
+  local worktree = require('lib.worktree')
   local state_dir = vim.fn.fnamemodify(worktree.state_file, ':h')
 
   if vim.fn.isdirectory(state_dir) == 1 then
@@ -79,7 +90,7 @@ function M.check()
         })
       end
     else
-      vim.health.info 'State file will be created on first use'
+      vim.health.info('State file will be created on first use')
     end
   else
     vim.health.error('State directory does not exist: ' .. state_dir, {
@@ -89,7 +100,7 @@ function M.check()
   end
 
   -- Check configuration
-  vim.health.info 'Configuration:'
+  vim.health.info('Configuration:')
   vim.health.info('  save_state: ' .. tostring(worktree.config.save_state))
   vim.health.info('  buffer_close_on_switch: ' .. tostring(worktree.config.buffer_close_on_switch))
   vim.health.info('  confirm_dirty_switch: ' .. tostring(worktree.config.confirm_dirty_switch))
@@ -102,7 +113,7 @@ function M.check()
   if #clients > 0 then
     vim.health.ok(#clients .. ' LSP client(s) active')
   else
-    vim.health.info 'No LSP clients active'
+    vim.health.info('No LSP clients active')
   end
 end
 

@@ -67,3 +67,57 @@ vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
+
+-- Hide the native tabline; the Snacks.picker tabs sidebar replaces it.
+vim.opt.showtabline = 0
+
+-- Horizontal scroll context
+vim.opt.sidescrolloff = 8
+
+-- Don't wrap lines
+vim.opt.wrap = false
+
+-- Smooth scrolling
+vim.opt.smoothscroll = true
+
+-- Keep cursor screen position when splitting
+vim.opt.splitkeep = 'screen'
+
+-- Free cursor in visual block mode
+vim.opt.virtualedit = 'block'
+
+-- Preserve view when jumping
+vim.opt.jumpoptions = 'view'
+
+-- Better diff algorithm
+vim.opt.diffopt:append('linematch:60')
+
+-- Confirm before exiting unsaved buffer
+vim.opt.confirm = true
+
+-- Auto save on buffer switch
+vim.opt.autowrite = true
+
+-- Global statusline
+vim.opt.laststatus = 3
+
+-- Round indent to shiftwidth multiple
+vim.opt.shiftround = true
+
+-- Hide markup in markdown
+vim.opt.conceallevel = 2
+
+-- Limit popup menu height
+vim.opt.pumheight = 10
+
+-- Unicode fold markers and clean end-of-buffer
+vim.opt.fillchars = {
+  fold = ' ',
+  diff = '╱',
+  eob = ' ',
+}
+
+-- Enable experimental ui2 (Neovim 0.12)
+-- Replaces message/cmdline layer, eliminates
+-- "Press ENTER" prompts
+require('vim._core.ui2').enable({})

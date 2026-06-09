@@ -50,6 +50,34 @@ require('snacks').setup {
       lsp_definitions = {
         auto_confirm = true,
       },
+      tabs = require('lib.tablist').source,
+      gh_pr = {
+        -- Add a worktrunk-backed checkout: <C-w> creates/switches to a
+        -- dedicated worktree for the selected PR via lib.worktree.switch_to_pr.
+        -- Built-in actions (<CR> actions menu, <a-b> browse, yank) are kept
+        -- because source config deep-merges with the gh_pr defaults.
+        actions = {
+          gh_pr_worktree = function(picker, item)
+            picker:close()
+            if not item or not item.number then
+              return
+            end
+            require('lib.worktree').switch_to_pr(item.number)
+          end,
+        },
+        win = {
+          input = {
+            keys = {
+              ['<c-w>'] = { 'gh_pr_worktree', mode = { 'n', 'i' } },
+            },
+          },
+          list = {
+            keys = {
+              ['<c-w>'] = { 'gh_pr_worktree', mode = { 'n', 'x' } },
+            },
+          },
+        },
+      },
     },
   },
   quickfile = { enabled = true },

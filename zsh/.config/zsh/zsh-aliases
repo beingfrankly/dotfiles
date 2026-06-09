@@ -4,6 +4,7 @@ alias zsh-update-plugins='find "$ZDOTDIR/plugins" -type d -exec test -e "{}/.git
 
 alias vi='nvim'
 
+alias ccq='python3 ~/.claude/telemetry/query.py'
 # ===== Modern CLI Replacements =====
 
 # bat (better cat with syntax highlighting)

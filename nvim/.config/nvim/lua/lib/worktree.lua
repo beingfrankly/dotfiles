@@ -10,19 +10,23 @@ end
 
 local M = {}
 
--- Module-local guard so worktrunk JSON-decode warnings do not spam
+-- Module-local guards so worktrunk fast-path warnings do not spam.
+-- _worktrunk_warn_shown guards the JSON-decode notification (fired inside
+-- _worktrunk_json). _worktrunk_shell_warn_shown guards the shell_error
+-- notification (fired by list_worktrees when wt itself exits non-zero).
 local _worktrunk_warn_shown = false
+local _worktrunk_shell_warn_shown = false
 
---- Run `git-wt <args> --format=json` and decode the JSON output.
----@param args string[] arguments AFTER `git-wt`; the helper appends `--format=json`
+--- Run `wt <args> --format=json` and decode the JSON output.
+---@param args string[] arguments AFTER `wt`; the helper appends `--format=json`
 ---@return table|nil decoded JSON, or nil on missing CLI / shell error / decode failure
 ---@return string|nil err_kind nil on success; 'missing' | 'shell_error' | 'decode' on failure
 ---@return string|nil err_text raw output for shell_error/decode so the caller can surface it
 function M._worktrunk_json(args)
-  if vim.fn.executable('git-wt') ~= 1 then
+  if vim.fn.executable('wt') ~= 1 then
     return nil, 'missing', nil
   end
-  local cmd = vim.list_extend({ 'git-wt' }, args)
+  local cmd = vim.list_extend({ 'wt' }, args)
   table.insert(cmd, '--format=json')
   local output = vim.fn.systemlist(cmd)
   if vim.v.shell_error ~= 0 then
@@ -34,7 +38,7 @@ function M._worktrunk_json(args)
     if not _worktrunk_warn_shown then
       _worktrunk_warn_shown = true
       vim.notify(
-        'worktree.lua: failed to decode git-wt JSON output; falling back to git --porcelain',
+        'worktree.lua: failed to decode wt JSON output; falling back to git --porcelain',
         vim.log.levels.WARN
       )
     end
@@ -43,74 +47,14 @@ function M._worktrunk_json(args)
   return decoded, nil, nil
 end
 
--- Configuration
-M.config = {
-  save_state = true,
-  lsp_restart_timeout = 5000,
-  lsp_restart_check_interval = 100,
-  buffer_close_on_switch = true,
-  confirm_dirty_switch = true,
-  file_open_delay = 100, -- Delay after LSP restart before opening file
-}
-
--- State file for tracking last file per worktree
-M.state_file = vim.fn.stdpath 'state' .. '/worktree_state.json'
-
----Setup configuration
----@param opts table|nil Configuration options
-function M.setup(opts)
-  M.config = vim.tbl_deep_extend('force', M.config, opts or {})
-end
-
----Parse git worktree list output
----Prefers worktrunk (git-wt) JSON when available; falls back to git --porcelain.
----@return table|nil List of worktrees with path, branch, sha, is_current, branch_name,
----                  and (when from worktrunk) ahead, behind, clean, ci_status
-function M.list_worktrees()
-  local cwd = vim.fn.getcwd()
-
-  -- Check if we're in a git repo
-  local git_dir = vim.fn.systemlist('git rev-parse --git-dir 2>/dev/null')[1]
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-
-  -- ── worktrunk fast-path ───────────────────────────────────────────────────
-  local decoded = M._worktrunk_json({ 'list' })
-  if decoded then
-    local worktrees = {}
-    for _, entry in ipairs(decoded) do
-      -- Skip bare/orphan main entries (entries with no real working tree)
-      if not (entry.is_main and vim.fn.isdirectory(entry.path) ~= 1) then
-        local wt = {
-          path = entry.path,
-          branch = 'refs/heads/' .. (entry.branch or ''),
-          branch_name = entry.branch or 'detached',
-          sha = entry.commit and entry.commit.sha or nil,
-          is_current = entry.is_current == true,
-          -- worktrunk-enriched fields
-          ahead = (entry.main and entry.main.ahead) or 0,
-          behind = (entry.main and entry.main.behind) or 0,
-          clean = (entry.working_tree ~= nil)
-            and (entry.working_tree.staged == 0
-              and entry.working_tree.modified == 0
-              and entry.working_tree.untracked == 0)
-            or false,
-          ci_status = entry.ci and entry.ci.status or nil,
-        }
-        table.insert(worktrees, wt)
-      end
-    end
-    return worktrees
-  end
-  -- fall through to git --porcelain path
-
-  -- ── git-porcelain fallback ────────────────────────────────────────────────
-  local output = vim.fn.systemlist 'git worktree list --porcelain'
-  if vim.v.shell_error ~= 0 then
-    return nil
-  end
-
+---Parse `git worktree list --porcelain` output into the same shape that
+---list_worktrees()'s fallback branch produces. Module-private; exposed via
+---M._parse_porcelain so callers that want a cheap, worktrunk-free list (such
+---as dashboard_section) can bypass the worktrunk fast-path entirely.
+---@param output string[] lines from `git worktree list --porcelain`
+---@param cwd string current working directory for `is_current` detection
+---@return table[] worktrees array with path, branch, sha, is_current, branch_name
+function M._parse_porcelain(output, cwd)
   local worktrees = {}
   local current = {}
 
@@ -146,6 +90,98 @@ function M.list_worktrees()
   end
 
   return worktrees
+end
+
+-- Configuration
+M.config = {
+  save_state = true,
+  lsp_restart_timeout = 5000,
+  lsp_restart_check_interval = 100,
+  buffer_close_on_switch = true,
+  confirm_dirty_switch = true,
+  file_open_delay = 100, -- Delay after LSP restart before opening file
+}
+
+-- State file for tracking last file per worktree
+M.state_file = vim.fn.stdpath 'state' .. '/worktree_state.json'
+
+---Setup configuration
+---@param opts table|nil Configuration options
+function M.setup(opts)
+  M.config = vim.tbl_deep_extend('force', M.config, opts or {})
+end
+
+---Parse git worktree list output
+---Prefers worktrunk (wt) JSON when available; falls back to git --porcelain.
+---@return table|nil List of worktrees with path, branch, sha, is_current, branch_name,
+---                  and (when from worktrunk) ahead, behind, clean, ci_status
+function M.list_worktrees()
+  local cwd = vim.fn.getcwd()
+
+  -- Check if we're in a git repo
+  local git_dir = vim.fn.systemlist('git rev-parse --git-dir 2>/dev/null')[1]
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+
+  -- ── worktrunk fast-path ───────────────────────────────────────────────────
+  -- `vim.json.decode` returns `vim.NIL` for JSON `null`. It is a userdata
+  -- sentinel that is truthy in Lua, so `entry.foo or default` does NOT catch
+  -- it. Anything from `wt list` that may be null at the source (notably
+  -- `branch` on bare/detached entries) must be coerced through `denil`.
+  local function denil(v)
+    if v == nil or v == vim.NIL then return nil end
+    return v
+  end
+  local decoded, err_kind, err_text = M._worktrunk_json({ 'list' })
+  if err_kind == 'shell_error' and not _worktrunk_shell_warn_shown then
+    _worktrunk_shell_warn_shown = true
+    vim.notify(
+      'worktree.lua: wt list failed (shell error); falling back to git --porcelain.\n' .. (err_text or ''),
+      vim.log.levels.WARN
+    )
+  end
+  if decoded then
+    local worktrees = {}
+    for _, entry in ipairs(decoded) do
+      local path = denil(entry.path)
+      local branch = denil(entry.branch)
+      local commit = denil(entry.commit)
+      local main = denil(entry.main)
+      local working_tree = denil(entry.working_tree)
+      local ci = denil(entry.ci)
+      -- Skip bare/orphan main entries (entries with no real working tree)
+      if not (entry.is_main and (not path or vim.fn.isdirectory(path) ~= 1)) then
+        local wt = {
+          path = path,
+          branch = 'refs/heads/' .. (branch or ''),
+          branch_name = branch or 'detached',
+          sha = commit and denil(commit.sha) or nil,
+          is_current = entry.is_current == true,
+          -- worktrunk-enriched fields
+          ahead = (main and main.ahead) or 0,
+          behind = (main and main.behind) or 0,
+          clean = working_tree
+            and (working_tree.staged == 0
+              and working_tree.modified == 0
+              and working_tree.untracked == 0)
+            or false,
+          ci_status = ci and denil(ci.status) or nil,
+        }
+        table.insert(worktrees, wt)
+      end
+    end
+    return worktrees
+  end
+  -- fall through to git --porcelain path
+
+  -- ── git-porcelain fallback ────────────────────────────────────────────────
+  local output = vim.fn.systemlist 'git worktree list --porcelain'
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+
+  return M._parse_porcelain(output, cwd)
 end
 
 ---Get git status for a worktree asynchronously
@@ -823,8 +859,8 @@ end
 ---Switch to (or create) a worktree for a Bitbucket/GitHub PR via worktrunk
 ---@param pr_number string|number PR number (without "pr:" prefix; passed verbatim to worktrunk)
 function M.switch_to_pr(pr_number)
-  if vim.fn.executable('git-wt') ~= 1 then
-    vim.notify('worktrunk (git-wt) is not installed. Run: brew install worktrunk', vim.log.levels.ERROR)
+  if vim.fn.executable('wt') ~= 1 then
+    vim.notify('worktrunk (wt) is not installed. Run: brew install worktrunk', vim.log.levels.ERROR)
     return
   end
 
@@ -834,16 +870,16 @@ function M.switch_to_pr(pr_number)
   local decoded, err_kind, err_text = M._worktrunk_json({ 'switch', pr_arg })
   if not decoded then
     if err_kind == 'shell_error' then
-      vim.notify('git-wt switch failed:\n' .. (err_text or ''), vim.log.levels.ERROR)
+      vim.notify('wt switch failed:\n' .. (err_text or ''), vim.log.levels.ERROR)
     elseif err_kind == 'decode' then
-      vim.notify('Failed to parse git-wt JSON output:\n' .. (err_text or ''), vim.log.levels.ERROR)
+      vim.notify('Failed to parse wt JSON output:\n' .. (err_text or ''), vim.log.levels.ERROR)
     end
     return
   end
 
   local target_path = decoded.path or (decoded.worktree and decoded.worktree.path)
   if not target_path or vim.fn.isdirectory(target_path) ~= 1 then
-    vim.notify('git-wt did not return a valid worktree path. Output:\n' .. vim.inspect(decoded), vim.log.levels.ERROR)
+    vim.notify('wt did not return a valid worktree path. Output:\n' .. vim.inspect(decoded), vim.log.levels.ERROR)
     return
   end
 
@@ -868,7 +904,19 @@ end
 ---Generate dashboard section for current worktree
 ---@return table[]|nil Array of dashboard section descriptors or nil if no worktrees
 function M.dashboard_section()
-  local worktrees = M.list_worktrees()
+  -- Bypass list_worktrees() / worktrunk fast-path: the dashboard only needs
+  -- path + branch_name + is_current. wt list --format=json computes
+  -- ahead/behind/CI fields that get_worktree_status() will refetch anyway,
+  -- and ci.status can involve a remote API call — too expensive for UIEnter.
+  local git_dir = vim.fn.systemlist('git rev-parse --git-dir 2>/dev/null')[1]
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+  local output = vim.fn.systemlist('git worktree list --porcelain')
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+  local worktrees = M._parse_porcelain(output, vim.fn.getcwd())
   if not worktrees or #worktrees == 0 then
     return nil
   end
@@ -964,47 +1012,99 @@ function M.dashboard_section()
   return items
 end
 
----Health check exposed via `:checkhealth custom.plugins.worktree`.
----Probes the four runtime dependencies. plenary is required (module
----degrades to a no-op without it). snacks is required for pick_worktree.
----git is required for the porcelain fallback. git-wt (worktrunk) is
----optional — its absence is a warn, not an error.
-function M.health()
-  vim.health.start('custom.plugins.worktree')
+---Slugify a string for use in a git branch name.
+---Lowercases, replaces non-alphanumeric runs with '-', trims leading/trailing '-',
+---and truncates to max_len (default 40). Pure function, no side effects.
+---@param s string
+---@param max_len integer|nil
+---@return string
+local function slugify(s, max_len)
+  max_len = max_len or 40
+  local slug = string.lower(s or '')
+  slug = slug:gsub('[^%w]+', '-')
+  slug = slug:gsub('^%-+', '')
+  slug = slug:gsub('%-+$', '')
+  if #slug > max_len then
+    slug = slug:sub(1, max_len):gsub('%-+$', '')
+  end
+  return slug
+end
 
-  local plen_ok = pcall(require, 'plenary.job')
-  if plen_ok then
-    vim.health.ok('plenary.nvim is installed')
-  else
-    vim.health.error('plenary.nvim is missing — module degrades to {}', {
-      'Install plenary.nvim (e.g., add to vim.pack.add).',
-    })
+---Create (or switch to) a worktree for the given Jira ticket.
+---Derives a branch name from `<prefix><ticket_key>-<slug(summary)>`, prompts the
+---user to confirm (unless opts.confirm == false), checks for an existing
+---worktree on that branch, otherwise invokes `wt switch --create <branch>` and
+---switches Neovim into the resulting path.
+---@param ticket_key string  e.g. 'II-1234'
+---@param summary    string  e.g. 'Add export button'
+---@param opts       table|nil  { confirm = true, branch_prefix = 'feature/' }
+function M.create_for_ticket(ticket_key, summary, opts)
+  opts = opts or {}
+  if type(ticket_key) ~= 'string' or ticket_key == '' then
+    vim.notify('create_for_ticket: missing ticket key', vim.log.levels.ERROR)
+    return
   end
 
-  local snacks_ok = pcall(require, 'snacks')
-  if snacks_ok then
-    vim.health.ok('snacks.nvim is installed (pick_worktree uses snacks.picker)')
-  else
-    vim.health.error('snacks.nvim is missing — pick_worktree will notify and bail', {
-      'Install snacks.nvim or stop calling pick_worktree.',
-    })
+  local prefix = opts.branch_prefix or 'feature/'
+  local derived = prefix .. ticket_key .. '-' .. slugify(summary or '', 40)
+  -- Strip a stray trailing '-' if the slug ended up empty.
+  derived = derived:gsub('%-+$', '')
+
+  local function proceed(branch_name)
+    if not branch_name or branch_name == '' then
+      return
+    end
+
+    -- ── Existing-worktree fast path ───────────────────────────────────────
+    local worktrees = M.list_worktrees() or {}
+    for _, wt in ipairs(worktrees) do
+      if wt.branch_name == branch_name then
+        vim.notify(
+          string.format('Switching to existing worktree for %s at %s', branch_name, wt.path),
+          vim.log.levels.INFO
+        )
+        M.switch_to_worktree(wt.path)
+        return
+      end
+    end
+
+    -- ── Create-and-switch via worktrunk ──────────────────────────────────
+    if vim.fn.executable('wt') ~= 1 then
+      vim.notify('worktrunk (wt) is not installed. Run: brew install worktrunk', vim.log.levels.ERROR)
+      return
+    end
+
+    vim.notify('Creating worktree for ' .. branch_name .. '...', vim.log.levels.INFO)
+
+    local decoded, err_kind, err_text = M._worktrunk_json({ 'switch', '--create', branch_name, '--yes' })
+    if not decoded then
+      if err_kind == 'shell_error' then
+        vim.notify('wt switch --create failed:\n' .. (err_text or ''), vim.log.levels.ERROR)
+      elseif err_kind == 'decode' then
+        vim.notify('Failed to parse wt JSON output:\n' .. (err_text or ''), vim.log.levels.ERROR)
+      end
+      return
+    end
+
+    local target_path = decoded.path or (decoded.worktree and decoded.worktree.path)
+    if not target_path or vim.fn.isdirectory(target_path) ~= 1 then
+      vim.notify(
+        'wt did not return a valid worktree path. Output:\n' .. vim.inspect(decoded),
+        vim.log.levels.ERROR
+      )
+      return
+    end
+
+    M.switch_to_worktree(target_path)
+    vim.notify('Created worktree for ' .. ticket_key .. ' at ' .. target_path, vim.log.levels.INFO)
   end
 
-  if vim.fn.executable('git') == 1 then
-    vim.health.ok('git is on PATH')
+  if opts.confirm == false then
+    proceed(derived)
   else
-    vim.health.error('git is not on PATH — list_worktrees and status helpers will fail', {
-      'Install git and ensure it is on PATH.',
-    })
-  end
-
-  if vim.fn.executable('git-wt') == 1 then
-    vim.health.ok('git-wt (worktrunk) is on PATH — JSON fast-path active')
-  else
-    vim.health.warn('git-wt (worktrunk) is not on PATH — falling back to git --porcelain', {
-      'Optional: brew install worktrunk (or your distribution equivalent) to enable',
-      'the worktrunk fast-path used by list_worktrees and switch_to_pr.',
-    })
+    vim.ui.input({ prompt = 'Branch name: ', default = derived }, function(input)
+      proceed(input)
+    end)
   end
 end
 

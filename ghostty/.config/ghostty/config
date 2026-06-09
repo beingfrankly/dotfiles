@@ -19,8 +19,8 @@ background-blur = false
 theme = teide-darker
 
 # Custom shader for cursor effects
-# custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl
-# custom-shader-animation = false
+custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl
+custom-shader-animation = true
 
 # ===== macOS-specific =====
 macos-titlebar-style = hidden

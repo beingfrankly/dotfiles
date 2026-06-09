@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "dotfiles_nvim_tabs_sidebar",
+  "project_id": "4b78bc28-5990-444c-aa9a-b250592e24c0"
+}

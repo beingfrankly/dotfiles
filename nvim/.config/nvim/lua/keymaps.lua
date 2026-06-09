@@ -106,6 +106,10 @@ vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Sav
 -- Redraw / Clear hlsearch / Diff Update
 vim.keymap.set('n', '<leader>ur', '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>', { desc = 'Redraw / Clear hlsearch / Diff Update' })
 
+-- Toggle tabpages sidebar (Snacks.picker custom source)
+vim.keymap.set('n', '<leader>ut', function() require('lib.tablist').toggle() end,
+  { desc = '[U]I: [T]oggle tab sidebar' })
+
 -- Terminal mode navigation
 vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>', { desc = 'Enter Normal Mode' })
 vim.keymap.set('t', '<C-h>', '<cmd>wincmd h<cr>', { desc = 'Go to Left Window' })

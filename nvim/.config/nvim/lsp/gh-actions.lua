@@ -1,4 +1,4 @@
-vim.lsp.config['gh-actions'] = {
+return {
   cmd = { 'gh-actions-language-server', '--stdio' },
   filetypes = { 'yaml' },
   root_dir = function(filename)

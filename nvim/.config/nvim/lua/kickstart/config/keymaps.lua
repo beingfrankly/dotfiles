@@ -304,7 +304,17 @@ M.git = {
   { "<leader>gS", function() Snacks.picker.git_stash() end,    desc = "Git Stash" },
   { "<leader>gd", function() Snacks.picker.git_diff() end,     desc = "Git Diff (Hunks)" },
   { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
-  { "<leader>gp", function() Snacks.picker.gh_pr() end,       desc = "GitHub PRs" },
+  {
+    "<leader>gp",
+    function()
+      -- gh api/graphql can't infer host from the git remote, so route
+      -- enterprise (GHE) repos to the right host; leave github.com repos alone.
+      local url = vim.fn.systemlist("git remote get-url origin")[1] or ""
+      vim.env.GH_HOST = url:match("hfg%.ghe%.com") and "hfg.ghe.com" or nil
+      Snacks.picker.gh_pr()
+    end,
+    desc = "GitHub PRs",
+  },
   -- Git commit/push/pull/stash actions
   {
     '<leader>gc',

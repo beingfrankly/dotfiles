@@ -1,4 +1,4 @@
-vim.lsp.config['jls'] = {
+return {
   cmd = {
     vim.fn.expand('~/.local/share/jls/dist/launch_system_java.sh'),
     'org.javacs.Main',

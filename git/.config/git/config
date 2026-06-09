@@ -24,6 +24,16 @@
 	# Improve git diff performance
 	preloadIndex = true
 
+[merge]
+  tool = nvimdiff
+
+[mergetool]
+  keepBackup = false
+  conflictstyle = diff3
+
+[mergetool "nvimdiff"]
+  layout = "LOCAL,BASE,REMOTE / MERGED"
+
 [feature]
 	# Enable faster file-system monitor if available
 	manyFiles = true
@@ -43,8 +53,7 @@
 
 # ===== Pull/Merge Settings =====
 [pull]
-	# Use rebase instead of merge when pulling (cleaner history)
-	rebase = true
+	rebase = false
 
 [merge]
 	# Show common ancestor in conflict markers (3-way diff)
@@ -215,3 +224,15 @@
 # Delta theme is loaded from included file
 [include]
 	path = ~/.config/theme/delta.gitconfig
+[credential]
+	helper = 
+	helper = /usr/local/share/gcm-core/git-credential-manager
+[credential "https://dev.azure.com"]
+	useHttpPath = true
+[credential "https://hfg.ghe.com"]
+	provider = github
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.hfg.ghe.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
