@@ -304,6 +304,75 @@ M.git = {
   { "<leader>gS", function() Snacks.picker.git_stash() end,    desc = "Git Stash" },
   { "<leader>gd", function() Snacks.picker.git_diff() end,     desc = "Git Diff (Hunks)" },
   { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File" },
+  { "<leader>gp", function() Snacks.picker.gh_pr() end,       desc = "GitHub PRs" },
+  -- Git commit/push/pull/stash actions
+  {
+    '<leader>gc',
+    function()
+      Snacks.terminal.open('git commit', {
+        win = { position = 'float', width = 0.8, height = 0.8 },
+        env = { GIT_EDITOR = 'nvim' },
+      })
+    end,
+    desc = 'Git [C]ommit',
+  },
+  {
+    '<leader>gC',
+    function()
+      vim.ui.input({ prompt = 'Commit message: ' }, function(msg)
+        if not msg or msg == '' then return end
+        vim.fn.system('git commit -m ' .. vim.fn.shellescape(msg))
+        if vim.v.shell_error == 0 then
+          vim.notify('Committed: ' .. msg, vim.log.levels.INFO)
+          require('gitsigns').refresh()
+        else
+          vim.notify('Commit failed (nothing staged?)', vim.log.levels.ERROR)
+        end
+      end)
+    end,
+    desc = 'Git [C]ommit (quick message)',
+  },
+  {
+    '<leader>ga',
+    function()
+      Snacks.terminal.open('git commit --amend', {
+        win = { position = 'float', width = 0.8, height = 0.8 },
+        env = { GIT_EDITOR = 'nvim' },
+      })
+    end,
+    desc = 'Git commit [A]mend',
+  },
+  {
+    '<leader>gP',
+    function()
+      Snacks.terminal.open('git push', { win = { position = 'bottom', height = 0.3 } })
+    end,
+    desc = 'Git [P]ush',
+  },
+  {
+    '<leader>gU',
+    function()
+      Snacks.terminal.open('git pull', { win = { position = 'bottom', height = 0.3 } })
+    end,
+    desc = 'Git p[U]ll',
+  },
+  {
+    '<leader>gx',
+    function()
+      vim.ui.input({ prompt = 'Stash message (empty for default): ' }, function(msg)
+        if msg == nil then return end
+        local cmd = msg ~= '' and ('git stash push -m ' .. vim.fn.shellescape(msg)) or 'git stash push'
+        vim.fn.system(cmd)
+        if vim.v.shell_error == 0 then
+          vim.notify('Stashed: ' .. (msg ~= '' and msg or '(default)'), vim.log.levels.INFO)
+          require('gitsigns').refresh()
+        else
+          vim.notify('Stash failed', vim.log.levels.ERROR)
+        end
+      end)
+    end,
+    desc = 'Git Stash (create)',
+  },
 }
 
 -- Debug keymaps (d) - All keymaps used for debugging
@@ -430,6 +499,19 @@ function setup_buffer_keymaps()
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
     callback = function(event)
+      local client = vim.lsp.get_client_by_id(event.data.client_id)
+      if client then
+        -- Auto-enable inlay hints when supported
+        if client:supports_method('textDocument/inlayHint') then
+          vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+        end
+
+        -- Auto-enable document colors when supported (CSS color previews)
+        if client:supports_method('textDocument/documentColor') then
+          vim.lsp.document_color.enable(true, { bufnr = event.buf, style = 'background' })
+        end
+      end
+
       local map = function(keys, func, desc, mode)
         mode = mode or 'n'
         vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
