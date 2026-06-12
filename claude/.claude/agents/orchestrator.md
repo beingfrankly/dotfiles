@@ -160,6 +160,16 @@ After any explorer subagent (`search`, `ast-search`, `lsp-search`) returns:
 
 See `~/.claude/references/handoff-provenance.md` for the full provenance contract.
 
+#### Truncation recovery and resume (WS1)
+
+Explorer returns can be silently truncated (no cutoff marker). On any thin, truncated, or continuation-hint explorer return (`search`/`ast-search`/`lsp-search`/`Explore`):
+
+1. Recover before re-exploring. Delegate to `build-runner`:
+   `python3 ~/.claude/telemetry/harvest_findings.py <agentId> --source auto`
+   (`agentId` is returned by the Agent tool). This reconstructs the agent's discovered facts as findings JSONL at `~/.claude/telemetry/findings/<session-id>/<agentId>.jsonl` — read-only `sessions.db` with automatic fallback to the raw `hook_logs_*.jsonl` for an agent that just finished and is not yet ingested. The output path is auto-derived from the agentId, so nothing needs to be passed at spawn. Read that file to recover anchors/queries with zero re-run.
+2. To continue the work (not just recover), prefer SendMessage resume when available: feature-detect SendMessage (a deferred tool; absent in some sessions) and, with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, resume the same agent for full context with no re-exploration. The per-resume cap reapplies and only the last message is surfaced, so still run the harvester (step 1) to capture mid-run discoveries.
+3. Fallback (SendMessage unavailable, cross-session, or cross-machine): spawn a fresh explorer instructed to read the findings JSONL, not repeat covered ground, and continue from the open questions.
+
 For all planning, validation, and review claims:
 
 - Do not say "verified", "matches", "exists", "does not exist", or equivalent unless you have direct evidence.
