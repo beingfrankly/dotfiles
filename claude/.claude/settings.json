@@ -140,6 +140,16 @@
             "async": true
           }
         ]
+      },
+      {
+        "matcher": "Read|Grep|Glob|NotebookRead",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/code/hooked/target/release/hooked budget",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUseFailure": [
@@ -227,6 +237,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Read|Grep|Glob|NotebookRead",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/code/hooked/target/release/hooked budget",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "SessionEnd": [
@@ -309,6 +329,17 @@
             "type": "command",
             "command": "bash ~/.claude/hooks/coverage-autowrite.sh",
             "timeout": 10,
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/code/hooked/target/release/hooked budget",
+            "timeout": 5,
             "async": true
           }
         ]
@@ -421,7 +452,10 @@
     "vscode-langservers@claude-code-lsps": true,
     "worktrunk@worktrunk": true,
     "vtsls@claude-code-lsps": true,
-    "striive-reflection@claude-skills-marketplace": true
+    "striive-reflection@claude-skills-marketplace": true,
+    "striive-analyse-bitbucket-pipeline-metrics@claude-skills-marketplace": true,
+    "striive-pre-refine@claude-skills-marketplace": true,
+    "striive-create-jira-issue@claude-skills-marketplace": true
   },
   "extraKnownMarketplaces": {
     "claude-code-lsps": {
