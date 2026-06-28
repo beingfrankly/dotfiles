@@ -67,3 +67,31 @@ nvim-test() {
       nvim
   fi
 }
+
+# ---------------------------------------------------------------------------
+# za — zellij session picker — list sessions, fuzzy-pick one, attach.
+# ---------------------------------------------------------------------------
+za() {
+  # Don't nest multiplexers — attach only from a plain shell
+  if [ -n "$ZELLIJ" ]; then
+    printf 'Already inside a zellij session (%s). Detach first: Ctrl-o d\n' "${ZELLIJ_SESSION_NAME:-?}" >&2
+    return 1
+  fi
+
+  local list choice
+  list=$(zellij list-sessions 2>/dev/null)
+
+  if [ -z "$list" ]; then
+    printf 'No zellij sessions — starting a new one…\n'
+    zellij
+    return
+  fi
+
+  # Strip ANSI (octal \033 for BSD+GNU awk portability), fuzzy-pick, take the session name (first field)
+  choice=$(printf '%s\n' "$list" \
+    | awk '{ gsub(/\033\[[0-9;]*m/, ""); print }' \
+    | fzf --height=40% --reverse --prompt='zellij ▸ ' --header='↑↓ pick · enter attach' \
+    | awk '{ print $1 }')
+
+  [ -n "$choice" ] && zellij attach "$choice"
+}

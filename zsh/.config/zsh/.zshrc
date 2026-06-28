@@ -249,9 +249,16 @@ esac
 # add-zsh-hook preexec _prompt_perf_start
 #
 # ASDF (version manager)
-if [[ -f $(brew --prefix asdf)/libexec/asdf.sh ]]; then
-    . $(brew --prefix asdf)/libexec/asdf.sh
+if command -v brew >/dev/null 2>&1 && [[ -f "$(brew --prefix asdf)/libexec/asdf.sh" ]]; then
+    . "$(brew --prefix asdf)/libexec/asdf.sh"
 fi
+
+# Keep local installers ahead of asdf/Homebrew after all PATH integrations run.
+_local_bin="$HOME/.local/bin"
+path=(${path:#$_local_bin})
+path=("$_local_bin" $path)
+unset _local_bin
+export PATH
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 # Added by go-hfs setup --mcp

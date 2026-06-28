@@ -17,11 +17,15 @@ go-hfs() {
     return 1
   fi
 }
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="/Applications/Obsidian.app/Contents/MacOS:$PATH"
+# Homebrew — macOS: /opt/homebrew, Linux: /home/linuxbrew/.linuxbrew
+if [[ -d /opt/homebrew ]]; then
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
+  export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+fi
+[[ -d "/Applications/Obsidian.app/Contents/MacOS" ]] && export PATH="/Applications/Obsidian.app/Contents/MacOS:$PATH"
 export PATH="$HOME/code/hfs/*/mcp:$PATH"
 
-export HUBSPOT_ID="148285899"
 # ===== Editor Configuration =====
 export EDITOR='nvim'
 export VISUAL='nvim'
@@ -29,7 +33,7 @@ export MANPAGER='nvim +Man!'
 export MANWIDTH=999
 
 # ===== Docker =====
-export PATH="$HOME/.rd/bin:$PATH"
+[[ -d "$HOME/.rd/bin" ]] && export PATH="$HOME/.rd/bin:$PATH"
 
 # ===== FZF Configuration (Teide Darker) =====
 export FZF_DEFAULT_OPTS="\
