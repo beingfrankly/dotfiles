@@ -29,6 +29,14 @@ vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
 
+-- Nvim skips its OSC 52 fallback whenever 'clipboard' is non-empty, so setting
+-- 'unnamedplus' above silently leaves remote hosts with no provider at all when
+-- no clipboard tool is installed (see autoload/provider/clipboard.vim:260).
+-- Opt in explicitly over SSH; macOS still resolves to pbcopy first.
+if vim.env.SSH_TTY then
+  vim.g.clipboard = 'osc52'
+end
+
 -- Enable break indent
 vim.opt.breakindent = true
 
