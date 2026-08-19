@@ -15,8 +15,8 @@ shell-integration-features = no-cursor,sudo,no-title
 background-opacity = 1.0
 background-blur = false
 
-# Teide Darker Theme (loaded from ~/.config/ghostty/themes/teide-darker)
-theme = teide-darker
+# Oshen Night Theme (loaded from ~/.config/ghostty/themes/oshen-night)
+theme = oshen-night
 
 # Custom shader for cursor effects
 custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl
