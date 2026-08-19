@@ -18,7 +18,7 @@
 
 vim.pack.add({
   -- Theme (configured first for colorscheme)
-  'https://github.com/serhez/teide.nvim',
+  'https://github.com/54L1M/Oshen.nvim',
 
   -- Core framework
   'https://github.com/folke/snacks.nvim',

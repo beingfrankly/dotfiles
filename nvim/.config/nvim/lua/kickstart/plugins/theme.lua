@@ -1,20 +1,13 @@
-require('teide').setup {
-  style = 'darker',
+-- Oshen.nvim: colorscheme
+-- https://github.com/54L1M/Oshen.nvim
+-- Ships two variants: 'oshen-night' (dark) and 'oshen-day' (light).
+-- Both react to `:set background=...` and re-apply live.
+-- Loaded first by pack.lua so later modules can read the palette.
+
+local oshen = require('kickstart.util').try_require('oshen', 'Oshen.nvim')
+if not oshen then return end
+
+oshen.setup({
   transparent = false,
-  terminal_colors = true,
-  styles = {
-    comments = { italic = true },
-    keywords = { italic = true },
-    functions = {},
-    variables = {},
-  },
-  dim_inactive = false,
-  on_colors = function(colors)
-    -- Darken backgrounds by 25%
-    colors.bg = '#111418'
-    colors.bg_dark = '#0e1114'
-    colors.bg_highlight = '#232835'
-    colors.bg_visual = '#232835'
-  end,
-}
-vim.cmd.colorscheme 'teide'
+})
+vim.cmd.colorscheme 'oshen-night'
