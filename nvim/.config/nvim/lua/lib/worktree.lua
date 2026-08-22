@@ -19,20 +19,36 @@ local _worktrunk_shell_warn_shown = false
 
 --- Run `wt <args> --format=json` and decode the JSON output.
 ---@param args string[] arguments AFTER `wt`; the helper appends `--format=json`
+---@param opts table|nil Options: { cwd = string } to run the command in a specific directory.
+---              When opts.cwd is set, uses vim.system with that cwd.
+---              When opts is nil or opts.cwd is nil, keeps the original vim.fn.systemlist behaviour.
 ---@return table|nil decoded JSON, or nil on missing CLI / shell error / decode failure
 ---@return string|nil err_kind nil on success; 'missing' | 'shell_error' | 'decode' on failure
 ---@return string|nil err_text raw output for shell_error/decode so the caller can surface it
-function M._worktrunk_json(args)
+function M._worktrunk_json(args, opts)
   if vim.fn.executable('wt') ~= 1 then
     return nil, 'missing', nil
   end
   local cmd = vim.list_extend({ 'wt' }, args)
   table.insert(cmd, '--format=json')
-  local output = vim.fn.systemlist(cmd)
-  if vim.v.shell_error ~= 0 then
-    return nil, 'shell_error', table.concat(output, '\n')
+  local raw
+  local shell_error
+  if opts and opts.cwd then
+    local result = vim.system(cmd, { cwd = opts.cwd, text = true }):wait()
+    shell_error = result.code ~= 0
+    raw = (result.stdout or '') .. (result.stderr or '')
+    -- prefer stdout for JSON; stderr is only used in the error path below
+    if not shell_error then
+      raw = result.stdout or ''
+    end
+  else
+    local output = vim.fn.systemlist(cmd)
+    shell_error = vim.v.shell_error ~= 0
+    raw = table.concat(output, '\n')
   end
-  local raw = table.concat(output, '\n')
+  if shell_error then
+    return nil, 'shell_error', raw
+  end
   local ok, decoded = pcall(vim.json.decode, raw)
   if not ok or type(decoded) ~= 'table' then
     if not _worktrunk_warn_shown then
@@ -403,6 +419,50 @@ function M.reset_plugin_state()
   end
 end
 
+---Normalize a path for comparison: resolve symlinks, absolutize, strip trailing slash.
+---@param p string
+---@return string
+local function norm_path(p)
+  local abs = vim.fn.fnamemodify(p, ':p')
+  abs = vim.fn.resolve(abs)
+  return (abs:gsub('/+$', ''))
+end
+
+---Open a worktree path in a tab-local context.
+---If a tab already has that path as its tab-local cwd, focus it.
+---Otherwise open a new tab and set its cwd with :tcd.
+---@param path string Absolute path to the worktree directory
+local function open_in_tab(path)
+  for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+    local tabnr = vim.api.nvim_tabpage_get_number(tab)
+    if norm_path(vim.fn.getcwd(-1, tabnr)) == norm_path(path) then
+      vim.api.nvim_set_current_tabpage(tab)
+      return
+    end
+  end
+  vim.cmd 'tabnew'
+  vim.cmd('tcd ' .. vim.fn.fnameescape(path))
+end
+
+---List git project ROOTS from zoxide, most-frecent first. Excludes subdirs (only dirs that are a git root).
+---@return string[]
+local function list_projects()
+  if vim.fn.executable('zoxide') ~= 1 then return {} end
+  local dirs = vim.fn.systemlist({ 'zoxide', 'query', '--list' })
+  local seen, roots = {}, {}
+  for _, dir in ipairs(dirs) do
+    if dir ~= '' and not seen[dir] then
+      local dotgit = dir .. '/.git'
+      -- a repo root has .git as a directory (normal repo) or a file (worktree/submodule)
+      if vim.fn.isdirectory(dotgit) == 1 or vim.fn.filereadable(dotgit) == 1 then
+        seen[dir] = true
+        roots[#roots + 1] = dir
+      end
+    end
+  end
+  return roots
+end
+
 ---Switch to a different worktree
 ---@param target_path string Path to target worktree
 ---@param opts table|nil Options: { save_state = true, force = false }
@@ -412,10 +472,10 @@ function M.switch_to_worktree(target_path, opts)
     force = false,
   }, opts or {})
 
-  local current_path = vim.fn.getcwd()
+  local current_path = vim.fn.getcwd(-1, vim.fn.tabpagenr())
 
   -- Check if already in target worktree
-  if current_path == target_path then
+  if norm_path(current_path) == norm_path(target_path) then
     vim.notify('Already in worktree: ' .. target_path, vim.log.levels.INFO)
     return
   end
@@ -447,37 +507,102 @@ function M.switch_to_worktree(target_path, opts)
     end
   end
 
-  -- Change directory first
-  vim.cmd('cd ' .. vim.fn.fnameescape(target_path))
+  -- Switch to (or open) the tab for this worktree
+  open_in_tab(target_path)
 
-  -- Reset plugin state (close floating windows, clear quickfix)
-  M.reset_plugin_state()
+  -- Load last file or show dashboard
+  local state = M.load_state()
+  local last_file = state[target_path]
 
-  -- Restart LSP with callback to open file and cleanup
-  M.restart_lsp(function()
-    -- Close old worktree buffers AFTER switching
-    if M.config.buffer_close_on_switch then
-      vim.schedule(function()
-        M.close_worktree_buffers(current_path)
+  if last_file and vim.fn.filereadable(last_file) == 1 then
+    vim.cmd('edit ' .. vim.fn.fnameescape(last_file))
+    vim.notify('Switched to worktree: ' .. target_path, vim.log.levels.INFO)
+  else
+    -- Show dashboard if available
+    local ok, snacks = pcall(require, 'snacks')
+    if ok and snacks.dashboard then
+      snacks.dashboard.open()
+    end
+    vim.notify('Switched to worktree: ' .. target_path, vim.log.levels.INFO)
+  end
+end
+
+---Create a new worktree for a branch and open it in a tab.
+---Always starts with a project-selection step (unless opts.project is provided),
+---then prompts for a branch (unless opts.branch is provided), then creates the
+---worktree in that project and opens it in a tab with Claude.
+---@param opts table|nil Options: { project = string, branch = string }
+---@return string|nil worktree_path when both project and branch are given and creation succeeds; nil when prompting (async) or on failure
+function M.create_workspace(opts)
+  opts = opts or {}
+
+  local function finish(project, branch)
+    if not branch or branch == '' then
+      return nil
+    end
+
+    if vim.fn.executable('wt') ~= 1 then
+      vim.notify('worktrunk (wt) is not installed. Run: brew install worktrunk', vim.log.levels.ERROR)
+      return nil
+    end
+
+    vim.notify('Creating workspace for branch: ' .. branch .. ' in ' .. project .. '...', vim.log.levels.INFO)
+
+    local decoded, err_kind, err_text = M._worktrunk_json(
+      { 'switch', '--create', branch, '--yes' },
+      { cwd = project }
+    )
+    if not decoded then
+      if err_kind == 'shell_error' then
+        vim.notify('wt switch --create failed:\n' .. (err_text or ''), vim.log.levels.ERROR)
+      elseif err_kind == 'decode' then
+        vim.notify('Failed to parse wt JSON output:\n' .. (err_text or ''), vim.log.levels.ERROR)
+      end
+      return nil
+    end
+
+    local target_path = decoded.path or (decoded.worktree and decoded.worktree.path)
+    if not target_path or vim.fn.isdirectory(target_path) ~= 1 then
+      vim.notify(
+        'wt did not return a valid worktree path. Output:\n' .. vim.inspect(decoded),
+        vim.log.levels.ERROR
+      )
+      return nil
+    end
+
+    open_in_tab(target_path)
+    pcall(function()
+      require('sidekick.cli').show({ name = 'claude', focus = true })
+    end)
+
+    vim.notify('Workspace ready: ' .. target_path, vim.log.levels.INFO)
+    return target_path
+  end
+
+  local function resolve_branch(project)
+    if opts.branch then
+      finish(project, opts.branch)
+    else
+      vim.ui.input({ prompt = 'New workspace branch: ' }, function(branch)
+        if not branch or branch == '' then return end
+        finish(project, branch)
       end)
     end
+  end
 
-    -- Load last file or show dashboard
-    local state = M.load_state()
-    local last_file = state[target_path]
-
-    if last_file and vim.fn.filereadable(last_file) == 1 then
-      vim.cmd('edit ' .. vim.fn.fnameescape(last_file))
-      vim.notify('Switched to worktree: ' .. target_path, vim.log.levels.INFO)
-    else
-      -- Show dashboard if available
-      local ok, snacks = pcall(require, 'snacks')
-      if ok and snacks.dashboard then
-        snacks.dashboard.open()
-      end
-      vim.notify('Switched to worktree: ' .. target_path, vim.log.levels.INFO)
+  if opts.project then
+    resolve_branch(opts.project)
+  else
+    local projects = list_projects()
+    if #projects == 0 then
+      vim.notify('No git projects found in zoxide. Visit a repo first (z <repo>).', vim.log.levels.WARN)
+      return
     end
-  end)
+    vim.ui.select(projects, { prompt = 'Select project:' }, function(project)
+      if not project then return end
+      resolve_branch(project)
+    end)
+  end
 end
 
 ---Format worktree for picker display
@@ -517,9 +642,6 @@ end
 ---@param item table Picker item
 ---@return string[] Preview lines
 function M.preview_worktree(item)
-  local cwd = vim.fn.getcwd()
-  vim.fn.chdir(item.path)
-
   local lines = {}
 
   -- Header
@@ -529,13 +651,12 @@ function M.preview_worktree(item)
   table.insert(lines, 'Recent Commits:')
   table.insert(lines, string.rep('─', 50))
 
-  -- Last 5 commits
-  local commits = vim.fn.systemlist 'git log --oneline --max-count=5'
+  -- Last 5 commits (use git -C to avoid mutating the tab-local cwd)
+  local commits = vim.fn.systemlist({ 'git', '-C', item.path, 'log', '--oneline', '--max-count=5' })
   for _, commit in ipairs(commits) do
     table.insert(lines, commit)
   end
 
-  vim.fn.chdir(cwd)
   return lines
 end
 
@@ -790,7 +911,7 @@ end
 ---Delete a worktree with safety checks
 ---@param worktree_path string Path to worktree to delete
 function M.delete_worktree(worktree_path)
-  local current_path = vim.fn.getcwd()
+  local current_path = vim.fn.getcwd(-1, vim.fn.tabpagenr())
 
   -- Prevent deleting current worktree
   if worktree_path == current_path then
@@ -798,11 +919,8 @@ function M.delete_worktree(worktree_path)
     return
   end
 
-  -- Check if worktree is dirty
-  local cwd = vim.fn.getcwd()
-  vim.fn.chdir(worktree_path)
-  local status = vim.fn.system('git status --porcelain')
-  vim.fn.chdir(cwd)
+  -- Check if worktree is dirty (use git -C to avoid mutating the tab-local cwd)
+  local status = vim.fn.system({ 'git', '-C', worktree_path, 'status', '--porcelain' })
 
   if status ~= '' then
     -- Show confirmation for dirty worktree
@@ -916,7 +1034,7 @@ function M.dashboard_section()
   if vim.v.shell_error ~= 0 then
     return nil
   end
-  local worktrees = M._parse_porcelain(output, vim.fn.getcwd())
+  local worktrees = M._parse_porcelain(output, vim.fn.getcwd(-1, vim.fn.tabpagenr()))
   if not worktrees or #worktrees == 0 then
     return nil
   end

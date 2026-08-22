@@ -110,6 +110,10 @@ vim.keymap.set('n', '<leader>ur', '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C
 vim.keymap.set('n', '<leader>ut', function() require('lib.tablist').toggle() end,
   { desc = '[U]I: [T]oggle tab sidebar' })
 
+-- New worktree workspace in its own tab
+vim.keymap.set('n', '<leader>uw', function() require('lib.worktree').create_workspace() end,
+  { desc = '[U]I: new [W]orkspace (worktree tab)' })
+
 -- Terminal mode navigation
 vim.keymap.set('t', '<esc><esc>', '<c-\\><c-n>', { desc = 'Enter Normal Mode' })
 vim.keymap.set('t', '<C-h>', '<cmd>wincmd h<cr>', { desc = 'Go to Left Window' })
