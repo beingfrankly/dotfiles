@@ -1,3 +1,55 @@
+# Behavioral guidelines
+
+## 1. Think Before Coding
+Don't assume. Don't hide confusion. Surface tradeoffs.
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them.
+- If a simpler approach exists, say so.
+- If something is unclear, stop. Name what's confusing.
+
+## 2. Simplicity First
+Minimum code that solves the problem. Nothing speculative.
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No “flexibility” that wasn't requested.
+- No error handling for impossible scenarios.
+- If 200 lines could be 50, rewrite it.
+
+## 3. Surgical Changes
+Touch only what you must. Clean up only your own mess.
+
+- Don't “improve” adjacent code or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice dead code, mention it — don't delete it.
+
+## 4. Goal-Driven Execution
+Define success criteria. Loop until verified.
+
+Transform tasks into verifiable goals:
+- “Add validation” → “Write tests, then make them pass”
+- “Fix the bug” → “Reproduce it in a test, then fix”
+- “Refactor X” → “Ensure tests pass before and after”
+
+## 5. Cass Conversation Search
+Use `cass` to search prior Codex, Claude Code, and other agent sessions before repeating investigation work or when historical context would help.
+
+```bash
+cass health                         # Fast readiness check
+cass status                         # Index freshness and recommended action
+cass search "query" --mode lexical  # Reliable text search; use when semantic is unavailable
+cass search "query" --agent codex   # Filter to Codex sessions
+cass search "query" --agent claude_code
+cass sessions --current             # Recent sessions for the current repo
+cass view <source_path> -n <line>   # Inspect a search hit with context
+cass expand <source_path> -n <line> # Show surrounding conversation messages
+```
+
+Prefer `--mode lexical` when Cass reports missing semantic assets or model consent is required. Use `cass robot-docs guide` and `cass robot-docs examples` for the current agent-oriented command contract.
+
 # Project Instructions for AI Agents
 
 This file provides instructions and context for AI coding agents working on this project.
@@ -49,22 +101,3 @@ bd close <id>         # Complete work
 - NEVER say "ready to push when you are" - the session must end pushed. Run the push yourself, or if you operate under a delegation-only policy (e.g. the orchestrator), delegate it to the git subagent
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
-
-
-## Build & Test
-
-_Add your build and test commands here_
-
-```bash
-# Example:
-# npm install
-# npm test
-```
-
-## Architecture Overview
-
-_Add a brief overview of your project architecture_
-
-## Conventions & Patterns
-
-_Add your project-specific conventions here_

@@ -1,4 +1,3 @@
-
 ## Subagent Delegation (required)
 
 - Delegate coding to the [worker](./agents/worker.md) subagent
@@ -13,20 +12,16 @@
 - Delegate review to the [reviewer](./agents/reviewer.md) and [codex-review](./agents/codex-review.md) subagents
 - Delegate notes and vault writes to the [notes](./agents/notes.md) subagent
 - Delegate running tests, building to the [build-runner](./agents/build-runner.md) subagent
-- Delegate browser automation to the [browser](./agents/browser.md) subagent
 - Use Beads (`bd`) for durable project tasks; orchestrator and worker preload the `beads-workflow` skill for command selection, ownership, and memory rules
 
 ## Subagent Reliability
 
-- Treat every subagent return as untrusted until checked.
 - Verify negative findings ("X does not exist") with the right search agent before drawing conclusions.
 - Search subagent prompts must ask one narrow question at a time and require
   findings only, with `file:line` citations for every factual code/config claim.
 - Multiple search subagents may run in parallel when their questions are
   independent and scoped to disjoint symbols, paths, modules, or claims.
 - Split worker tasks into small, verifiable chunks.
-- After each worker returns, read the edited files or inspect the diff to confirm changes persisted and are complete.
-- Never trust subagent-reported event IDs, portal IDs, ticket IDs, or external data without querying the real source.
 
 ## Task Sizing & Proportionality
 
@@ -50,10 +45,7 @@ Verification discipline applies to every tier.
 - If a claim cannot be checked with the available tools, mark it `UNVERIFIED` and state the blocker.
 - When persisting plans to the vault, read the written note back and confirm task headings and acceptance criteria were not truncated.
 
-## Tool Permissions
-
-- Hook guards are authoritative even when agents use `permissionMode: bypassPermissions`.
-- If a command is blocked by a hook guard, do not retry it through another agent.
-- Surface the exact blocked command, the agent/profile that attempted it, and the reason so the user can decide whether to run it or update policy.
 
 Vault path: ~/Sync/Obsidian/Second Brain/
+
+@RTK.md
