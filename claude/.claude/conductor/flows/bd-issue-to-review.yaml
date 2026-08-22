@@ -1,0 +1,126 @@
+# bd-issue-to-review — the one flow.
+#
+# Takes a single bd issue from plan, through implementation, to review, with each
+# step running as its own agent process in its own herdr pane.
+#
+# The conductor reads this file and follows it. It is data on purpose: change the
+# pipeline here, not in agents/conductor.md.
+#
+# --- The marker contract ------------------------------------------------------
+#
+#   - the conductor posts [conductor:<id>:start] before starting a step
+#   - the agent posts the step's `marker` as ITS OWN COMMENT when genuinely done
+#   - a step is complete only when that comment's body is EXACTLY the marker
+#
+# Check the COMMENTS section only, and match the whole comment body, not a
+# substring. Two false-completion routes were found on the first live run of this
+# flow, and both are closed by that rule:
+#
+#   1. the issue BODY quoting a marker as an example — hit by the verifier itself
+#   2. one step's comment quoting a LATER step's marker in prose — spotted by the
+#      plan agent before it could fire
+#
+# A missing marker is a valid outcome. A false one is not.
+#
+# --- Two different timeouts ---------------------------------------------------
+#
+# herdr_timeout_ms  passed to `herdr agent ...`; herdr caps this at 300000 (5 min)
+# step_budget_ms    how long the conductor keeps polling bd for the marker
+#
+# These were one field until the herdr docs showed the 3000-300000 range, at which
+# point the old implement step was declaring 3600000 — 12x over the ceiling.
+#
+# --- Model and effort ---------------------------------------------------------
+#
+# `agent_args` is passed through after `--`, so `--model opus` or codex's `-m` can
+# be pinned per step. Deliberately NOT set here: which model each step deserves
+# belongs to "Design the model and effort routing policy" (…vtq.11), and this flow
+# should not fork that decision. Consequence today: claude steps inherit the
+# session default, which was measured at Sonnet 4.5 rather than the Opus tier this
+# setup states a preference for.
+
+name: bd-issue-to-review
+description: Plan, implement and review one bd issue, each step in its own pane.
+bus: beads
+
+steps:
+  - id: plan
+    agent: orchestrator
+    kind: claude
+    pane: plan
+    marker: "[conductor:plan:done]"
+    herdr_timeout_ms: 120000
+    step_budget_ms: 900000
+    prompt: |
+      Plan bd issue {{issue}}. Read it with `bd show {{issue}}`.
+
+      Produce a plan of small, verifiable chunks and post it as a comment on
+      {{issue}}. Do not implement anything.
+
+      Describe later steps' markers in prose only. Never write another step's
+      marker as a literal bracketed string in a comment — it can satisfy that
+      step early.
+
+      When the plan is on the issue, post a separate comment whose entire body is:
+      [conductor:plan:done]
+
+      If you cannot plan it — the issue is underspecified, or blocked on a
+      decision — post a comment saying what is missing and stop. Do not post the
+      marker. A missing marker is a valid outcome; a false one is not.
+
+  - id: implement
+    agent: worker
+    kind: claude
+    pane: worker
+    marker: "[conductor:implement:done]"
+    herdr_timeout_ms: 120000
+    step_budget_ms: 3600000
+    prompt: |
+      Implement bd issue {{issue}} following the plan in its comments.
+      Read both with `bd show {{issue}}`.
+
+      Stay inside the plan. If the plan is wrong, stop and say so on the issue
+      rather than improvising a different change.
+
+      When the work is done AND you have verified it runs — not merely that it
+      was written — post a comment on {{issue}} listing the files you changed and
+      how you verified them. Never quote a later step's marker in that comment.
+
+      Then post a separate comment whose entire body is:
+      [conductor:implement:done]
+
+      Do not post the marker for work you have not observed working.
+
+  # Reviewed by a different model family on purpose: Claude reviewing Claude
+  # shares its blind spots. Codex is not bound by agents/reviewer.md, which is
+  # `tools: Read, Glob, Grep` — no Bash, so no bd, so it could not reach this
+  # bus at all. That is what stalled the first run at this step.
+  #
+  # -s workspace-write is required: bd's Dolt db is in-workspace, but bd also
+  # holds ~/.beads/eventsData/eventkit.lock outside it. If that write is refused,
+  # grant that path rather than reaching for danger-full-access.
+  #
+  # Codex may raise its own approval prompt, which surfaces as agent_status
+  # `blocked`. That is the `agent send-keys` path, not a failure.
+  - id: review
+    agent: reviewer
+    kind: codex
+    agent_args: ["-s", "workspace-write"]
+    pane: reviewer
+    marker: "[conductor:review:done]"
+    herdr_timeout_ms: 120000
+    step_budget_ms: 900000
+    prompt: |
+      Review the implementation of bd issue {{issue}}. Read the issue and its
+      comments with `/opt/homebrew/bin/bd show {{issue}}` to find the plan and the
+      change list.
+
+      Check the change against the plan and against the repo's conventions.
+      Post your findings as a comment on {{issue}} — including "no findings" if
+      that is the honest answer. Never quote a later step's marker.
+
+      Then post a separate comment whose entire body is:
+      [conductor:review:done]
+
+      If you cannot post to the issue, say so in your pane and do not claim the
+      review was delivered.
