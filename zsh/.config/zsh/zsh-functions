@@ -95,3 +95,106 @@ za() {
 
   [ -n "$choice" ] && zellij attach "$choice"
 }
+
+# ---------------------------------------------------------------------------
+# chrome-debug — start Chrome with a CDP endpoint for agent-browser
+#
+# Usage: chrome-debug [port]
+#   port  Remote debugging port (default: 9222)
+#
+# Chrome silently refuses to open a remote-debugging port on the default
+# profile, so this runs against a dedicated profile directory — that is the
+# whole reason the function exists.  The profile is persistent, so logins
+# survive across runs, and it starts as a second instance alongside your
+# everyday Chrome without touching its session.
+#
+# Then: agent-browser connect <port>
+# ---------------------------------------------------------------------------
+chrome-debug() {
+  local port="${1:-9222}"
+  local profile="${XDG_DATA_HOME:-$HOME/.local/share}/chrome-debug"
+  local app="/Applications/Google Chrome.app"
+
+  if [[ ! -d "$app" ]]; then
+    print -u2 "chrome-debug: Google Chrome not found at '$app'"
+    return 1
+  fi
+
+  if curl -sf -m 1 "http://127.0.0.1:${port}/json/version" >/dev/null 2>&1; then
+    printf 'chrome-debug: CDP already listening on %s\n' "$port"
+    return 0
+  fi
+
+  open -na "$app" --args \
+    --remote-debugging-port="$port" \
+    --user-data-dir="$profile" \
+    --no-first-run \
+    --no-default-browser-check
+
+  # `open` returns as soon as it hands off to LaunchServices, well before the
+  # port is bound — poll instead of assuming, but give up rather than hang.
+  local waited=0
+  while ! curl -sf -m 1 "http://127.0.0.1:${port}/json/version" >/dev/null 2>&1; do
+    if (( waited >= 100 )); then
+      print -u2 "chrome-debug: CDP did not come up on ${port} within 10s"
+      print -u2 "  If Chrome is already running on this profile, macOS focuses the"
+      print -u2 "  existing window and drops the flags. Kill it and retry:"
+      print -u2 "    pkill -f \"user-data-dir=${profile}\""
+      return 1
+    fi
+    sleep 0.1
+    (( waited += 1 ))
+  done
+
+  printf 'chrome-debug: CDP ready on %s (profile: %s)\n' "$port" "$profile"
+}
+
+# ---------------------------------------------------------------------------
+# st — syncthing CLI with the GUI address and API key already wired up
+#
+# Usage: st <cli-args>...
+#   st show system
+#   st show connections
+#   st config folders list
+#   st operations rescan --folder=<id>
+#
+# The macOS app bundles its own syncthing binary and never puts it on PATH,
+# and every `cli` call needs the API key dug out of config.xml — that plumbing
+# is the whole reason this function exists.
+#
+# An already-exported STGUIADDRESS / STGUIAPIKEY wins, so aiming at a remote
+# instance (e.g. an ssh tunnel to the VPS) needs no second function:
+#   STGUIADDRESS=http://127.0.0.1:8385 STGUIAPIKEY=<key> st show system
+# ---------------------------------------------------------------------------
+st() {
+  local bin="/Applications/Syncthing.app/Contents/Resources/syncthing/syncthing"
+  [[ -x "$bin" ]] || bin="$(command -v syncthing)"
+
+  if [[ ! -x "$bin" ]]; then
+    print -u2 "st: no syncthing binary — not in the app bundle, not on PATH"
+    return 1
+  fi
+
+  local apikey="$STGUIAPIKEY"
+
+  if [[ -z "$apikey" ]]; then
+    local config="${STCONFDIR:-$HOME/Library/Application Support/Syncthing}/config.xml"
+
+    if [[ ! -r "$config" ]]; then
+      print -u2 "st: cannot read '$config'"
+      print -u2 "  Set STGUIAPIKEY directly, or STCONFDIR to the config directory."
+      return 1
+    fi
+
+    apikey="$(sed -nE 's|.*<apikey>(.*)</apikey>.*|\1|p' "$config" | head -1)"
+
+    if [[ -z "$apikey" ]]; then
+      print -u2 "st: no <apikey> element in '$config'"
+      return 1
+    fi
+  fi
+
+  STGUIADDRESS="${STGUIADDRESS:-http://127.0.0.1:8384}" \
+  STGUIAPIKEY="$apikey" \
+    "$bin" cli "$@"
+}

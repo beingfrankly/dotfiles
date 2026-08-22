@@ -21,5 +21,13 @@ export SAVEHIST=50000
 # Cargo (Rust)
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
-# ASDF version manager
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+# Non-interactive zsh commands only read this file, so keep PATH ordering here.
+# User-installed tools should win over version-manager shims.
+_local_bin="$HOME/.local/bin"
+_asdf_shims="${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
+path=("${(@)path:#$_local_bin}")
+path=("${(@)path:#$_asdf_shims}")
+path=("$_local_bin" "$_asdf_shims" $path)
+typeset -gU path PATH
+unset _local_bin _asdf_shims
+export PATH

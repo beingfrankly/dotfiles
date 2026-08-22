@@ -253,6 +253,17 @@ if command -v brew >/dev/null 2>&1 && [[ -f "$(brew --prefix asdf)/libexec/asdf.
     . "$(brew --prefix asdf)/libexec/asdf.sh"
 fi
 
+# Keep JAVA_HOME tracking the asdf-resolved java. mvnd/maven read JAVA_HOME
+# directly; without it mvnd forks `java` on every run to locate the JDK.
+# The plugin helper only hooks precmd, which never fires in scripted shells, so
+# JAVA_HOME would go stale after a cd. Add chpwd (fires even in `zsh -c`) and one
+# eager call for shells that never cd.
+if [[ -f "${ASDF_DATA_DIR:-$HOME/.asdf}/plugins/java/set-java-home.zsh" ]]; then
+    . "${ASDF_DATA_DIR:-$HOME/.asdf}/plugins/java/set-java-home.zsh"
+    add-zsh-hook chpwd asdf_update_java_home
+    asdf_update_java_home
+fi
+
 # Keep local installers ahead of asdf/Homebrew after all PATH integrations run.
 _local_bin="$HOME/.local/bin"
 path=(${path:#$_local_bin})
@@ -263,5 +274,7 @@ export PATH
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 # Added by go-hfs setup --mcp
 export PATH="$PATH:/Users/Frank.vanEldijk/code/hfs/*/mcp"
-# Added by go-hfs setup --mcp
-export PATH="$PATH:/Users/Frank.vanEldijk/code/hfs/II-7050-company-type-fix/mcp"
+
+
+# asdf
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
