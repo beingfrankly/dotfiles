@@ -53,3 +53,12 @@
 # Secret keys (stored in this file but prefer env vars to avoid git exposure):
 # - linear.api_key  → use LINEAR_API_KEY env var instead
 # - github.token    → use GITHUB_TOKEN env var instead
+
+# --- Added 2026-08-22: this repo is PUBLIC (github.com/beingfrankly/dotfiles) ---
+# JSONL backup is auto-enabled whenever a git remote exists, and by default it
+# git-pushes the export to the project repo. Ticket bodies here carry
+# work-internal detail (service names, local hostnames, secrets mechanisms), so
+# the export must never reach the public remote. Local export is kept: it is the
+# off-machine-recovery story, and .beads/backup/ is already gitignored.
+backup:
+  git-push: false

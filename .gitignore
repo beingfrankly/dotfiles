@@ -21,12 +21,23 @@ karabiner/.config/karabiner/automatic_backups/
 
 # Claude workspace files (any stow package; CLAUDE.md stays tracked because these are file/subdir rules, not a .claude/ dir rule)
 **/.claude/settings.local.json
+# settings.json too: the harness writes generated environment intelligence into it
+# (autoMode — cloud account ids, internal tooling inventory, org posture) and this
+# repo is PUBLIC. Machine-local overrides belong in settings.local.json above.
+**/.claude/settings.json
 **/.claude/telemetry/
 **/.claude/sessions/
 **/.claude/projects/
 **/.claude/logs/
 **/.claude/cache/
 **/.claude/history.jsonl
+
+# Beads tracker export — this repo is PUBLIC. These are passive JSONL exports of a
+# local Dolt DB; ticket bodies carry work-internal detail (service names, local
+# hostnames, secrets mechanisms). Sync uses refs/dolt/data, so nothing depends on
+# them being tracked, and .beads/backup/ keeps local off-machine recovery.
+.beads/issues.jsonl
+.beads/interactions.jsonl
 
 # Backup files
 *.bak
