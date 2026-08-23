@@ -61,4 +61,6 @@
 # the export must never reach the public remote. Local export is kept: it is the
 # off-machine-recovery story, and .beads/backup/ is already gitignored.
 backup:
-  git-push: false
+    git-push: false
+sync:
+    remote: "git+ssh://git@github.com/beingfrankly/dotfiles.git"
