@@ -5,18 +5,6 @@
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin/lua-language-server/bin:$PATH"
 export PATH="$HOME/.local/bin/jdtls/bin:$PATH"
-# go-hfs: resolve binary from current git worktree, fallback to main
-go-hfs() {
-  local root=$(git rev-parse --show-toplevel 2>/dev/null)
-  if [[ -n "$root" && -x "$root/go-hfs/bin/go-hfs" ]]; then
-    "$root/go-hfs/bin/go-hfs" "$@"
-  elif [[ -x "$HOME/code/hfs/main/go-hfs/bin/go-hfs" ]]; then
-    "$HOME/code/hfs/main/go-hfs/bin/go-hfs" "$@"
-  else
-    echo "go-hfs: binary not found — run 'make build' in go-hfs/" >&2
-    return 1
-  fi
-}
 # Homebrew — macOS: /opt/homebrew, Linux: /home/linuxbrew/.linuxbrew
 if [[ -d /opt/homebrew ]]; then
   export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
@@ -24,7 +12,6 @@ elif [[ -d /home/linuxbrew/.linuxbrew ]]; then
   export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 fi
 [[ -d "/Applications/Obsidian.app/Contents/MacOS" ]] && export PATH="/Applications/Obsidian.app/Contents/MacOS:$PATH"
-export PATH="$HOME/code/hfs/*/mcp:$PATH"
 
 # ===== Editor Configuration =====
 export EDITOR='nvim'
@@ -35,33 +22,35 @@ export MANWIDTH=999
 # ===== Docker =====
 [[ -d "$HOME/.rd/bin" ]] && export PATH="$HOME/.rd/bin:$PATH"
 
-# ===== FZF Configuration (Teide Darker) =====
+# ===== FZF Configuration (luna) =====
+# Palette from https://github.com/WTFox/luna.nvim (extras/fzf)
 export FZF_DEFAULT_OPTS="\
 --highlight-line \
 --info=inline-right \
 --ansi \
 --layout=reverse \
 --border=none \
---color=bg+:#232835 \
---color=bg:#0b0e10 \
---color=border:#729dd2 \
---color=fg:#e7eaee \
---color=gutter:#0b0e10 \
---color=header:#ffa064 \
---color=hl+:#ffa064 \
---color=hl:#ffa064 \
---color=info:#545c7e \
---color=marker:#b2a3ff \
---color=pointer:#b2a3ff \
---color=prompt:#ffa064 \
---color=query:#e7eaee:regular \
---color=scrollbar:#729dd2 \
---color=separator:#ffa064 \
---color=spinner:#b2a3ff \
+--color=bg+:#1c1c1c \
+--color=bg:#060606 \
+--color=border:#404040 \
+--color=fg:#e4e4e8 \
+--color=fg+:#c7c7c7 \
+--color=gutter:#060606 \
+--color=header:#c2916a \
+--color=hl+:#c2916a \
+--color=hl:#c2916a \
+--color=info:#8c9cb8 \
+--color=marker:#b09080 \
+--color=pointer:#a8a8a8 \
+--color=prompt:#75a1c7 \
+--color=query:#e4e4e8:regular \
+--color=scrollbar:#404040 \
+--color=separator:#c2916a \
+--color=spinner:#a8a8a8 \
 --height=40% --preview-window=right:60%"
 
 # ===== EZA Configuration =====
-# Teide Darker theme loaded from ~/.config/eza/theme.yml
+# luna theme loaded from ~/.config/eza/theme.yml
 
 # ===== Less Configuration =====
 export LESS='-R -F -X -i'
@@ -81,20 +70,20 @@ export SONARLINT_NVIM="8da6072b6ae72c00ce520bb09115ab96822164ee"
 # ===== OPENCODE =====
 # export PATH=/Users/Frank.vanEldijk/.opencode/bin:$PATH
 
-# Slack MCP (add your tokens to secrets-hfs.sh if needed)
+# Slack MCP (add your tokens to secrets-global.sh if needed)
 # export SLACK_BOT_TOKEN=""
 # export SLACK_TEAM_ID=""
 
-# GitHub MCP (add your token to secrets-hfs.sh if needed)
+# GitHub MCP (add your token to secrets-global.sh if needed)
 # export GITHUB_PERSONAL_ACCESS_TOKEN=""
 
-# Jam.dev MCP (add your API key to secrets-hfs.sh if needed)
+# Jam.dev MCP (add your API key to secrets-global.sh if needed)
 # export JAM_API_KEY=""
 
-# ===== Work-specific Configuration (Headfirst) =====
-# Load work secrets from separate file if it exists
-if [[ -f "$HOME/.config/zsh/secrets-hfs.sh" ]]; then
-    source "$HOME/.config/zsh/secrets-hfs.sh"
+# ===== Global secrets (needed outside the hfs repo) =====
+# Repo-scoped HFS_* secrets now load via direnv from ~/code/hfs/.envrc
+if [[ -f "$HOME/.config/zsh/secrets-global.sh" ]]; then
+    source "$HOME/.config/zsh/secrets-global.sh"
 fi
 
 # ===== Atlas.nvim (Jira + Bitbucket) =====
