@@ -1,67 +1,63 @@
-# Teide Darker theme for delta (git diff viewer)
+# luna theme for delta (git diff viewer)
+# Palette from https://github.com/WTFox/luna.nvim (lua/luna/palette.lua)
 # Include this in your ~/.gitconfig with:
 # [include]
 #     path = ~/.config/theme/delta.gitconfig
 
 [delta]
-    features = teide-darker
+    features = luna
     side-by-side = true
     line-numbers = true
     navigate = true
 
-[delta "teide-darker"]
-    # Minus (deletions) - burgundy tones
-    minus-style                   = syntax "#4f2431"
-    minus-non-emph-style          = syntax "#4f2431"
-    minus-emph-style              = syntax "#7c2b3f"
-    minus-empty-line-marker-style = syntax "#4f2431"
-    line-numbers-minus-style      = "#EE4B6B"
+[delta "luna"]
+    # Minus (deletions) - luna bg_delete / error
+    minus-style                   = syntax "#40000a"
+    minus-non-emph-style          = syntax "#40000a"
+    minus-emph-style              = syntax "#70282f"
+    minus-empty-line-marker-style = syntax "#40000a"
+    line-numbers-minus-style      = "#e08585"
 
-    # Plus (additions) - teal tones
-    plus-style                    = syntax "#294145"
-    plus-non-emph-style           = syntax "#294145"
-    plus-emph-style               = syntax "#3b696c"
-    plus-empty-line-marker-style  = syntax "#294145"
-    line-numbers-plus-style       = "#1BB16E"
+    # Plus (additions) - luna git.add / ok
+    plus-style                    = syntax "#152017"
+    plus-non-emph-style           = syntax "#152017"
+    plus-emph-style               = syntax "#263d2b"
+    plus-empty-line-marker-style  = syntax "#152017"
+    line-numbers-plus-style       = "#6fbe80"
 
-    # Line numbers
-    line-numbers-zero-style       = "#474E5C"
-    line-numbers-left-style       = "#474E5C"
-    line-numbers-right-style      = "#474E5C"
+    # Line numbers - luna grey_warm
+    line-numbers-zero-style       = "#605958"
+    line-numbers-left-style       = "#605958"
+    line-numbers-right-style      = "#605958"
 
-    # General
-    file-style = "#FFA064" bold
-    file-decoration-style = "#FFA064" ul
-    hunk-header-style = "#FFE77A" bold
-    hunk-header-decoration-style = "#FFE77A" box
+    # General - luna signal / warning
+    file-style = "#c2916a" bold
+    file-decoration-style = "#c2916a" ul
+    hunk-header-style = "#d9a35a" bold
+    hunk-header-decoration-style = "#d9a35a" box
 
-    # Commit
-    commit-style = "#5CCEFF" bold
-    commit-decoration-style = "#5CCEFF" box
+    # Commit - luna func
+    commit-style = "#75a1c7" bold
+    commit-decoration-style = "#75a1c7" box
 
     # Whitespace
-    whitespace-error-style = "#F73F64" reverse
+    whitespace-error-style = "#e08585" reverse
 
-    # Blame
-    blame-palette = "#0e1114" "#111418" "#232835" "#31364e"
+    # Blame - luna surfaces, dark to light
+    blame-palette = "#060606" "#1c1c1c" "#1f1f1f" "#333333"
     blame-code-style = syntax
 
     # Merge conflict
     merge-conflict-begin-symbol = "⮜"
     merge-conflict-end-symbol = "⮞"
-    merge-conflict-ours-diff-header-style = "#FFE77A" bold
-    merge-conflict-theirs-diff-header-style = "#FFE77A" bold
+    merge-conflict-ours-diff-header-style = "#d9a35a" bold
+    merge-conflict-theirs-diff-header-style = "#d9a35a" bold
 
-    # Inline hints
-    inline-hint-style = "#545c7e"
+    # Inline hints - luna comment
+    inline-hint-style = "#7c7c7c"
 
-# Teide Darker color reference (25% darker):
-# Background: #111418
-# Selection: #232835
-# Red (deletions): #F73F64, #F97791
-# Green (additions): #38FFA5
-# Orange (files): #FFA064
-# Cyan (info): #5CCEFF
-# Yellow (hunks): #FFE77A
-# Purple (accents): #B2A3FF
-# Gray (line numbers): #474E5C
+# luna color reference:
+# Background: #060606      Surface: #1c1c1c / #1f1f1f / #333333
+# Foreground: #e4e4e8      Comment: #7c7c7c    Grey warm: #605958
+# error #e08585  warning #d9a35a  info #8c9cb8  hint #b09080  ok #6fbe80
+# keyword #e19067  func #75a1c7  type #c4a8d6  string #9eb38e  signal #c2916a

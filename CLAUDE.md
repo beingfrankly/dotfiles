@@ -42,6 +42,7 @@ This is a macOS development environment configuration repository managed with **
 │
 ├── nvim/.config/nvim/        # → ~/.config/nvim/*
 ├── ghostty/.config/ghostty/  # → ~/.config/ghostty/*
+├── herdr/.config/herdr/      # → ~/.config/herdr/config.toml
 ├── git/.config/git/          # → ~/.config/git/{config,ignore}
 ├── aerospace/.config/aerospace/
 ├── karabiner/.config/karabiner/
@@ -64,6 +65,24 @@ These packages use `--no-folding` (individual file symlinks, not directory symli
 - **nvim**: lazy.nvim generates `lazy-lock.json`, `plugin/`, `spell/`
 - **zsh**: secrets, history, cache, plugins live alongside tracked files
 - **claude**: `~/.claude/` has history, plans, session data — only `CLAUDE.md` is ours
+- **herdr**: logs, sockets, `session.json` and cloned plugin repos sit beside `config.toml`
+
+## Stow discipline
+
+Read this before you edit any stowed configuration file.
+
+- Run `make check` first. It dry-runs every package and names each conflicting path. A full run takes 0.103 s.
+- Never assume a live file is a symlink. Karabiner-Elements and Ghostty rewrite their config file on save, which destroys the link.
+- Treat a real file where stow wants a link as drift, not as an error. Read both copies before you choose one.
+- Never resolve a stow conflict by deleting a file.
+- Run `stow --adopt <package>` when git tracks the package copy. The live file wins, and `git checkout` reverts it.
+- Copy both files to `/tmp` first when git does not track the package copy.
+- Compare the checksums after every adopt, and report the result.
+- Put an ignore pattern in `<package>/.stow-local-ignore`. Stow does not read an ignore file from the repository root.
+- Repeat stow's built-in ignore list in that file. A package-local file replaces the built-in list. Omitting `\.gitignore` creates a new conflict.
+- Run one destructive command at a time. Never chain a move and a delete.
+
+The post-merge hook runs `make restow` and prints the conflicting paths on failure. The pre-push hook blocks a push while a conflict exists. Override it with `git push --no-verify`.
 
 ## Common Operations
 
@@ -144,10 +163,10 @@ When executing bash commands in this project, use the modern tool names directly
    - Breaking this causes severe performance degradation
    - User specifically configured this to fix a critical issue
 
-2. **Karabiner Cmd+Tab Remapping** (`karabiner/karabiner.json`)
-   - Required for AeroSpace workspace switching
-   - Disabling breaks the entire workspace system
-   - macOS protects Cmd+Tab, this is the workaround
+2. **Karabiner caps_lock Hyper Key** (`karabiner/.config/karabiner/karabiner.json`)
+   - Maps caps_lock to command+control+option+shift
+   - The Cmd+Tab to Ctrl+Tab remap was removed on 2026-09-01, because AeroSpace no longer needs it
+   - Do not restore the Cmd+Tab rule. Ask the user first if a workspace switch fails
 
 3. **AeroSpace Workspace Change Hook** (`aerospace/aerospace.toml:20-22`)
    - Core integration between AeroSpace and SketchyBar

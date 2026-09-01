@@ -27,10 +27,12 @@ fi
 # post-merge cannot abort a git operation — we always exit 0 from this section.
 _restow_root="$(git rev-parse --show-toplevel 2>/dev/null)"
 if [ -n "$_restow_root" ]; then
-  if make -C "$_restow_root" restow >/dev/null 2>&1; then
+  if _restow_out="$(make -C "$_restow_root" restow 2>&1)"; then
     echo "dotfiles: restowed"
   else
-    echo >&2 "dotfiles: WARNING — 'make restow' failed; symlinks may be stale. Run 'make restow' manually."
+    echo >&2 "dotfiles: WARNING — 'make restow' failed; symlinks may be stale."
+    echo "$_restow_out" | grep -E 'cannot stow|not owned by stow' >&2
+    echo >&2 "dotfiles: run 'make check' for the full list, then 'make restow'."
   fi
 fi
 exit 0

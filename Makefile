@@ -1,7 +1,7 @@
 STOW := stow -v -d $(HOME)/.dotfiles -t $(HOME)
 
 # Packages that need --no-folding (mixed tracked/generated content)
-NO_FOLD := git karabiner nvim claude zsh
+NO_FOLD := git karabiner nvim claude zsh herdr
 
 # Standard packages (tree folding is fine)
 STANDARD := bat atuin lazygit lazydocker starship oh-my-posh eza scripts aerospace theme ghostty
@@ -12,7 +12,7 @@ ALL := $(STANDARD) $(NO_FOLD)
 LINUX_STANDARD := bat atuin lazygit lazydocker starship oh-my-posh eza scripts theme
 
 # Linux: no-fold packages (no macOS-GUI tools: karabiner)
-LINUX_NOFOLD := git nvim claude zsh
+LINUX_NOFOLD := git nvim claude zsh herdr
 
 # OS-aware active package sets — Linux drops macOS-GUI packages automatically
 UNAME_S := $(shell uname -s)
@@ -25,7 +25,7 @@ else
 endif
 ACTIVE_ALL := $(ACTIVE_STANDARD) $(ACTIVE_NOFOLD)
 
-.PHONY: install install-linux uninstall restow list $(ALL)
+.PHONY: install install-linux uninstall restow check list $(ALL)
 
 install: ## Stow all packages (OS-aware: Linux skips macOS-GUI tools)
 	$(STOW) $(ACTIVE_STANDARD)
@@ -44,6 +44,16 @@ restow: ## Re-stow all packages (OS-aware; used by post-merge hook)
 	$(STOW) -R $(ACTIVE_STANDARD)
 	$(STOW) -R --no-folding $(ACTIVE_NOFOLD)
 
+check: ## Report stow conflicts without changing anything
+	@out=$$( { $(STOW) -n -R $(ACTIVE_STANDARD); $(STOW) -n -R --no-folding $(ACTIVE_NOFOLD); } 2>&1 \
+		| grep -E 'cannot stow|not owned by stow' ); \
+	if [ -n "$$out" ]; then \
+		echo "$$out" >&2; \
+		echo "dotfiles: stow conflicts found - run 'make check' after you fix them" >&2; \
+		exit 1; \
+	fi; \
+	echo "dotfiles: no stow conflicts"
+
 list: ## List all packages
 	@echo "Standard: $(STANDARD)"
 	@echo "No-fold:  $(NO_FOLD)"
@@ -53,7 +63,7 @@ list: ## List all packages
 bat atuin lazygit lazydocker starship oh-my-posh eza scripts aerospace theme ghostty:
 	$(STOW) $@
 
-git karabiner nvim claude zsh:
+git karabiner nvim claude zsh herdr:
 	$(STOW) --no-folding $@
 
 help: ## Show this help

@@ -2,8 +2,8 @@
 # https://github.com/sharkdp/bat
 
 # Set the theme to use for syntax highlighting
-# Oxocarbon is not built-in, using similar dark theme
---theme="base16"
+# luna is not built-in; loaded from ~/.config/bat/themes/luna.tmTheme
+--theme="luna"
 
 # Show line numbers, Git modifications and file header (but no grid)
 --style="numbers,changes,header"
