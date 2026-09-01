@@ -12,7 +12,7 @@ cursor-style-blink = false
 shell-integration-features = no-cursor,sudo,no-title
 
 # ===== Appearance =====
-background-opacity = 1.0
+background-opacity = 1.00
 background-blur = false
 
 # Luna Theme (loaded from ~/.config/ghostty/themes/luna)
@@ -23,6 +23,8 @@ custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl
 custom-shader-animation = true
 
 # ===== macOS-specific =====
+# Hides the titlebar entirely: no window title, no traffic-light buttons.
+# Keeps the window frame and rounded corners (unlike window-decoration = none).
 macos-titlebar-style = hidden
 macos-option-as-alt = true
 
@@ -38,6 +40,7 @@ unfocused-split-opacity = 1
 
 # ===== Mouse Configuration =====
 mouse-hide-while-typing = true
+focus-follows-mouse = false
 mouse-scroll-multiplier = 2
 clipboard-read = allow
 clipboard-write = allow
@@ -49,38 +52,67 @@ resize-overlay = never
 resize-overlay-duration = 0
 
 # ===== Keybindings =====
-# Splits
-keybind = cmd+d=new_split:right
-keybind = cmd+shift+d=new_split:down
+# Splits - disabled (herdr handles multiplexing)
+# Includes Ghostty's own defaults, not just the previous custom binds,
+# so cmd+[ / cmd+alt+arrows / cmd+ctrl+arrows no longer navigate splits.
+keybind = cmd+d=unbind
+keybind = cmd+shift+d=unbind
+keybind = cmd+[=unbind
+keybind = cmd+]=unbind
+keybind = cmd+h=unbind
+keybind = cmd+j=unbind
+keybind = cmd+k=unbind
+keybind = cmd+l=unbind
+keybind = cmd+shift+h=unbind
+keybind = cmd+shift+j=unbind
+keybind = cmd+shift+k=unbind
+keybind = cmd+shift+l=unbind
+keybind = cmd+alt+up=unbind
+keybind = cmd+alt+down=unbind
+keybind = cmd+alt+left=unbind
+keybind = cmd+alt+right=unbind
+keybind = cmd+ctrl+up=unbind
+keybind = cmd+ctrl+down=unbind
+keybind = cmd+ctrl+left=unbind
+keybind = cmd+ctrl+right=unbind
+keybind = cmd+ctrl+==unbind
+keybind = cmd+shift+enter=unbind
+
+# Close the window (no splits or tabs left to close)
 keybind = cmd+w=close_surface
 
-# Navigate between splits (vim-style)
-keybind = cmd+h=goto_split:left
-keybind = cmd+j=goto_split:bottom
-keybind = cmd+k=goto_split:top
-keybind = cmd+l=goto_split:right
-
-# Resize splits
-keybind = cmd+shift+h=resize_split:left,10
-keybind = cmd+shift+j=resize_split:down,10
-keybind = cmd+shift+k=resize_split:up,10
-keybind = cmd+shift+l=resize_split:right,10
-
-# Tabs
-keybind = cmd+t=new_tab
-keybind = cmd+shift+[=previous_tab
-keybind = cmd+shift+]=next_tab
-keybind = cmd+1=goto_tab:1
-keybind = cmd+2=goto_tab:2
-keybind = cmd+3=goto_tab:3
-keybind = cmd+4=goto_tab:4
-keybind = cmd+5=goto_tab:5
+# Tabs - disabled (use splits instead)
+# Every default tab binding is unbound, including the physical digit_N
+# variants, otherwise cmd+N still switches tabs.
+keybind = cmd+t=unbind
+keybind = cmd+shift+[=unbind
+keybind = cmd+shift+]=unbind
+keybind = ctrl+tab=unbind
+keybind = ctrl+shift+tab=unbind
+keybind = cmd+alt+w=unbind
+keybind = cmd+1=unbind
+keybind = cmd+2=unbind
+keybind = cmd+3=unbind
+keybind = cmd+4=unbind
+keybind = cmd+5=unbind
+keybind = cmd+6=unbind
+keybind = cmd+7=unbind
+keybind = cmd+8=unbind
+keybind = cmd+9=unbind
+keybind = cmd+digit_1=unbind
+keybind = cmd+digit_2=unbind
+keybind = cmd+digit_3=unbind
+keybind = cmd+digit_4=unbind
+keybind = cmd+digit_5=unbind
+keybind = cmd+digit_6=unbind
+keybind = cmd+digit_7=unbind
+keybind = cmd+digit_8=unbind
 
 # Windows
 keybind = cmd+n=new_window
 
 # Zoom/Focus
-keybind = cmd+shift+z=toggle_split_zoom
+keybind = cmd+shift+z=unbind
 keybind = cmd+ctrl+f=toggle_fullscreen
 
 # Font size adjustment
@@ -95,5 +127,5 @@ keybind = cmd+shift+i=inspector:toggle
 copy-on-select = clipboard
 confirm-close-surface = false
 quit-after-last-window-closed = false
-auto-update = check
+auto-update = download
 keybind = shift+enter=text:\x1b\r
