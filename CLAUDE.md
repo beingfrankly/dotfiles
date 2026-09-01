@@ -42,6 +42,7 @@ This is a macOS development environment configuration repository managed with **
 │
 ├── nvim/.config/nvim/        # → ~/.config/nvim/*
 ├── ghostty/.config/ghostty/  # → ~/.config/ghostty/*
+├── herdr/.config/herdr/      # → ~/.config/herdr/config.toml
 ├── git/.config/git/          # → ~/.config/git/{config,ignore}
 ├── aerospace/.config/aerospace/
 ├── karabiner/.config/karabiner/
@@ -64,6 +65,7 @@ These packages use `--no-folding` (individual file symlinks, not directory symli
 - **nvim**: lazy.nvim generates `lazy-lock.json`, `plugin/`, `spell/`
 - **zsh**: secrets, history, cache, plugins live alongside tracked files
 - **claude**: `~/.claude/` has history, plans, session data — only `CLAUDE.md` is ours
+- **herdr**: logs, sockets, `session.json` and cloned plugin repos sit beside `config.toml`
 
 ## Common Operations
 
