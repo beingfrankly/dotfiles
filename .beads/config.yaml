@@ -62,5 +62,7 @@
 # off-machine-recovery story, and .beads/backup/ is already gitignored.
 backup:
     git-push: false
-sync:
-    remote: "git+ssh://git@github.com/beingfrankly/dotfiles.git"
+# Cross-machine Beads sync is deliberately disabled during the shared-server
+# migration. Do not add a remote until a private topology is approved.
+dolt.local-only: true
+dolt.shared-server: true
