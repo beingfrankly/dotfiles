@@ -14,13 +14,12 @@ end
 
 -- Helper function to get the current test method name using treesitter
 local function get_test_method_name()
-  local ok, ts_utils = pcall(require, 'nvim-treesitter.ts_utils')
-  if not ok then
-    vim.notify('nvim-treesitter not available', vim.log.levels.WARN)
+  local ok, node = pcall(vim.treesitter.get_node)
+  if not ok or not node then
+    vim.notify('No treesitter parser for this buffer', vim.log.levels.WARN)
     return nil
   end
 
-  local node = ts_utils.get_node_at_cursor()
   while node do
     if node:type() == 'method_declaration' then
       local name_node = node:field('name')[1]

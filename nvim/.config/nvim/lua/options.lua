@@ -8,7 +8,7 @@ vim.env.BASH_SUBSHELL = '0'
 
 vim.opt.termguicolors = true
 
-vim.opt.background = 'dark'
+vim.opt.background = 'light'
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -114,6 +114,14 @@ vim.opt.shiftround = true
 
 -- Hide markup in markdown
 vim.opt.conceallevel = 2
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('json-no-conceal', { clear = true }),
+  pattern = { 'json', 'jsonc', 'json5' },
+  callback = function()
+    vim.opt_local.conceallevel = 0
+  end,
+})
 
 -- Limit popup menu height
 vim.opt.pumheight = 10

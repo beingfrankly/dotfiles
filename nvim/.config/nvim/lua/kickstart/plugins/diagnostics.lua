@@ -1,9 +1,9 @@
 -- Diagnostic line highlight colors (subtle backgrounds)
 local palette = {
-  err = '#51202A',
-  warn = '#3B3B1B',
-  info = '#1F3342',
-  hint = '#1E2E1E',
+  err = '#f2ddd3',
+  warn = '#eee4ce',
+  info = '#e1e7e9',
+  hint = '#e4ebd7',
 }
 
 vim.api.nvim_set_hl(0, 'DiagnosticErrorLine', { bg = palette.err, blend = 20 })
@@ -12,7 +12,7 @@ vim.api.nvim_set_hl(0, 'DiagnosticInfoLine', { bg = palette.info, blend = 10 })
 vim.api.nvim_set_hl(0, 'DiagnosticHintLine', { bg = palette.hint, blend = 10 })
 
 -- DAP breakpoint sign
-vim.api.nvim_set_hl(0, 'DapBreakpointSign', { fg = '#FF0000', bg = nil, bold = true })
+vim.api.nvim_set_hl(0, 'DapBreakpointSign', { fg = '#a12622', bg = nil, bold = true })
 vim.fn.sign_define('DapBreakpoint', {
   text = '●',
   texthl = 'DapBreakpointSign',

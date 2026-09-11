@@ -17,8 +17,7 @@
 -- ══════════════════════════════════════════════════
 
 vim.pack.add({
-  -- Theme (configured first for colorscheme)
-  'https://github.com/wtfox/luna.nvim',
+  -- Circadia is vendored locally and configured before the other plugins.
 
   -- Core framework
   'https://github.com/folke/snacks.nvim',
@@ -28,7 +27,7 @@ vim.pack.add({
   'https://github.com/lewis6991/gitsigns.nvim',
   'https://github.com/williamboman/mason.nvim',
   'https://github.com/stevearc/conform.nvim',
-  'https://github.com/nvim-treesitter/nvim-treesitter',
+  { src = 'https://github.com/nvim-treesitter/nvim-treesitter', version = 'main' },
   { src = 'https://github.com/saghen/blink.cmp', version = vim.version.range('^1') },
   'https://github.com/rafamadriz/friendly-snippets',
   'https://github.com/tpope/vim-sleuth',
@@ -109,5 +108,8 @@ require('kickstart.plugins.sonarlint')
 require('kickstart.plugins.markdown')
 require('kickstart.plugins.java-extras')
 
--- 10. Build hooks
+-- 10. Editor autocmds
+require('custom.autocmds')
+
+-- 11. Build hooks
 require('pack-hooks')

@@ -31,13 +31,13 @@ return {
     end
 
     local project_root = vim.fs.root(bufnr, root_markers) or vim.fn.getcwd()
-    on_dir(project_root)
-  end,
-  on_new_config = function(new_config, new_root_dir)
-    local local_bin = vim.fs.joinpath(new_root_dir, 'node_modules', '.bin', 'tsgo')
+
+    local local_bin = vim.fs.joinpath(project_root, 'node_modules', '.bin', 'tsgo')
     if vim.uv.fs_stat(local_bin) then
-      new_config.cmd = { local_bin, '--lsp', '--stdio' }
+      vim.lsp.config('tsgo', { cmd = { local_bin, '--lsp', '--stdio' } })
     end
+
+    on_dir(project_root)
   end,
   settings = {
     typescript = {
