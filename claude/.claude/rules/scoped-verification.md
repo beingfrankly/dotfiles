@@ -60,6 +60,8 @@ pnpm jest --findRelatedTests <changed-source-file> [<more-source-files>...]
 - Do not add `--config apps/<app>/jest.config.ts`. That flag drops the other 5 projects.
 - Do not run `test-all`, `test-super-striive`, or another whole-app script for a local change.
 - Use `--watch` only when the user asks for a watch loop.
+- Add `--maxWorkers=6` when the run covers more than about 50 specs. Jest defaults to one
+  worker per core minus one, which is 13 workers on this 14-core machine.
 
 ## A run of 0 tests is a failure
 
@@ -78,6 +80,12 @@ Run the whole project suite in these 4 cases only:
 - A mutation test or a coverage measurement needs its configured scope. Stryker and a
   `COVERAGE=true` run are exempt from this rule.
 - The user asks for a full run.
+
+Always add `--maxWorkers=6` to a whole-suite run. Measured on 2026-09-10 in
+`~/code/hfs/II-8993/striive-portals`: an unbounded `jest --silent` reached 505.9% CPU and
+9207296 KB resident within 23 seconds. It drove the load average to 13.96 on 14 cores, filled
+memory to `35G used, 227M unused`, and triggered a Microsoft Defender and Spotlight scan of
+the fresh `node_modules`. The machine was unusable until the run ended.
 
 Let CI run the full suite. Do not reproduce the CI scope on every local change.
 

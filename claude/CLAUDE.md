@@ -6,9 +6,17 @@
 - Verify outcomes with proportionate checks before claiming success; this prevents untested conclusions.
 - Use non-interactive command flags where prompts are possible; this prevents unattended commands from hanging.
 
-## Beads (`bd`)
+## Language
 
-When a repository has a Beads database, run `bd prime` and use `bd` as the task source of truth; this prevents work and context from drifting across sessions. Use `bd ready`, `bd show`, `bd update <id> --claim`, and `bd close <id>`. Store durable knowledge with `bd remember` instead of parallel markdown task or memory files.
+Write all prose in Simplified Technical English (the ASD-STE100 rules). The full rules are in `~/.claude/output-styles/ste.md`.
+
+- Reproduce code, paths, commands, error text, and `file:line` citations exactly; this prevents a rewritten message from passing as evidence.
+- For steps, plans, and prompts, use the imperative, one instruction per sentence, and 20 words per sentence at most; this prevents one instruction from carrying two actions.
+- For explanations and findings, use the active voice and 25 words per sentence at most; this keeps a tradeoff readable.
+- Use one term for one concept and never vary it for style; this prevents a reader from taking two words as two demands.
+- Use the simple tenses, keep articles, and avoid `-ing` forms that are not established technical names; this keeps sentences parsable.
+- Write "must", "can", and "will not" instead of "shall", "should", and "may"; this prevents an ambiguous requirement.
+- State a fact, or mark it `UNVERIFIED` and name the blocker; never hedge; this prevents a guess from reading as a result.
 
 ## Herdr
 
@@ -19,3 +27,5 @@ When `HERDR_ENV=1` and terminal or agent orchestration is needed, load the Herdr
 - Do not close or restart panes, tabs, or services you did not create unless asked; this avoids interrupting other work.
 
 Before finishing, run relevant quality gates, inspect the final diff and status, update the Beads issue, and follow the repository's commit and push policy.
+
+@~/.claude/RTK.md
