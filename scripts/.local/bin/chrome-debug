@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+app="/Applications/Google Chrome.app"
+profile="${CHROME_DEBUG_PROFILE:-${XDG_DATA_HOME:-$HOME/.local/share}/chrome-debug}"
+
+usage() {
+  cat <<'EOF'
+Usage: chrome-debug [start] [port]
+       chrome-debug status [port]
+       chrome-debug stop [port]
+
+Start Google Chrome with a CDP endpoint for agent-browser, on a dedicated
+profile directory. Chrome refuses remote debugging on the default profile.
+
+  start   Start Chrome when the port is not already bound (default action)
+  status  Report whether CDP answers on the port
+  stop    Quit every Chrome process that runs on this profile
+
+  port    Remote debugging port (default: 9222)
+
+Environment:
+  CHROME_DEBUG_PROFILE  Profile directory
+                        (default: ${XDG_DATA_HOME:-$HOME/.local/share}/chrome-debug)
+
+Then: agent-browser connect <port>
+EOF
+}
+
+cdp_up() {
+  curl -sf -m 1 "http://127.0.0.1:${1}/json/version" >/dev/null 2>&1
+}
+
+action=start
+case "${1:-}" in
+  start | status | stop)
+    action="$1"
+    shift
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+esac
+
+port="${1:-9222}"
+
+case "$action" in
+  status)
+    if cdp_up "$port"; then
+      live_profile="$(pgrep -f "remote-debugging-port=${port}" |
+        xargs -r ps -o command= -p 2>/dev/null |
+        grep -o 'user-data-dir=[^ ]*' | head -1 | cut -d= -f2-)"
+      printf 'chrome-debug: CDP listening on %s (profile: %s)\n' \
+        "$port" "${live_profile:-unknown}"
+      exit 0
+    fi
+    printf 'chrome-debug: no CDP on %s\n' "$port"
+    exit 1
+    ;;
+  stop)
+    if pkill -f "user-data-dir=${profile}"; then
+      printf 'chrome-debug: stopped Chrome on profile %s\n' "$profile"
+      exit 0
+    fi
+    printf 'chrome-debug: no Chrome running on profile %s\n' "$profile"
+    exit 0
+    ;;
+esac
+
+if [[ ! -d "$app" ]]; then
+  printf 'chrome-debug: Google Chrome not found at %s\n' "$app" >&2
+  exit 1
+fi
+
+if cdp_up "$port"; then
+  printf 'chrome-debug: CDP already listening on %s\n' "$port"
+  exit 0
+fi
+
+open -na "$app" --args \
+  --remote-debugging-port="$port" \
+  --user-data-dir="$profile" \
+  --no-first-run \
+  --no-default-browser-check
+
+waited=0
+while ! cdp_up "$port"; do
+  if ((waited >= 100)); then
+    {
+      printf 'chrome-debug: CDP did not come up on %s within 10s\n' "$port"
+      printf '  If Chrome already runs on this profile, macOS focuses the existing\n'
+      printf '  window and drops the flags. Stop it and retry:\n'
+      printf '    chrome-debug stop %s\n' "$port"
+    } >&2
+    exit 1
+  fi
+  sleep 0.1
+  ((waited += 1))
+done
+
+printf 'chrome-debug: CDP ready on %s (profile: %s)\n' "$port" "$profile"

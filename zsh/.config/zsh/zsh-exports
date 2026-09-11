@@ -2,6 +2,7 @@
 # Environment exports
 
 # ===== Path Configuration =====
+export PATH="$HOME/.rd/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/bin/lua-language-server/bin:$PATH"
 export PATH="$HOME/.local/bin/jdtls/bin:$PATH"
@@ -22,35 +23,35 @@ export MANWIDTH=999
 # ===== Docker =====
 [[ -d "$HOME/.rd/bin" ]] && export PATH="$HOME/.rd/bin:$PATH"
 
-# ===== FZF Configuration (luna) =====
-# Palette from https://github.com/WTFox/luna.nvim (extras/fzf)
+# ===== FZF Configuration (circadia-light) =====
+# Palette from https://github.com/tanmaymanojgandhi/circadia
 export FZF_DEFAULT_OPTS="\
 --highlight-line \
 --info=inline-right \
 --ansi \
 --layout=reverse \
 --border=none \
---color=bg+:#1c1c1c \
---color=bg:#060606 \
---color=border:#404040 \
---color=fg:#e4e4e8 \
---color=fg+:#c7c7c7 \
---color=gutter:#060606 \
---color=header:#c2916a \
---color=hl+:#c2916a \
---color=hl:#c2916a \
---color=info:#8c9cb8 \
---color=marker:#b09080 \
---color=pointer:#a8a8a8 \
---color=prompt:#75a1c7 \
---color=query:#e4e4e8:regular \
---color=scrollbar:#404040 \
---color=separator:#c2916a \
---color=spinner:#a8a8a8 \
+--color=bg+:#eee7d6 \
+--color=bg:#f7f2e6 \
+--color=border:#d7cdb7 \
+--color=fg:#28323a \
+--color=fg+:#46535f \
+--color=gutter:#f7f2e6 \
+--color=header:#843900 \
+--color=hl+:#843900 \
+--color=hl:#843900 \
+--color=info:#1c60a2 \
+--color=marker:#524b42 \
+--color=pointer:#46535f \
+--color=prompt:#0048b3 \
+--color=query:#28323a:regular \
+--color=scrollbar:#d7cdb7 \
+--color=separator:#843900 \
+--color=spinner:#46535f \
 --height=40% --preview-window=right:60%"
 
 # ===== EZA Configuration =====
-# luna theme loaded from ~/.config/eza/theme.yml
+# circadia-light theme loaded from ~/.config/eza/theme.yml
 
 # ===== Less Configuration =====
 export LESS='-R -F -X -i'

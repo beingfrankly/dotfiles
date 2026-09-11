@@ -272,8 +272,6 @@ unset _local_bin
 export PATH
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
-# Added by go-hfs setup --mcp
-export PATH="$PATH:/Users/Frank.vanEldijk/code/hfs/*/mcp"
 
 
 # asdf
