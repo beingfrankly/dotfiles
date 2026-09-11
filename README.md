@@ -20,6 +20,7 @@ This repository contains my personal configuration files for a highly optimized 
 │   ├── items/         # Bar item definitions
 │   └── plugins/       # Event handler scripts
 ├── ghostty/           # Terminal emulator configuration
+├── herdr/             # Terminal multiplexer configuration
 ├── nvim/              # Neovim configuration (Kickstart-based)
 ├── zsh/               # Zsh shell configuration
 ├── oh-my-posh/        # Prompt theme configuration
