@@ -2,8 +2,8 @@
 # https://github.com/sharkdp/bat
 
 # Set the theme to use for syntax highlighting
-# luna is not built-in; loaded from ~/.config/bat/themes/luna.tmTheme
---theme="luna"
+# circadia-light is not built-in; loaded from ~/.config/bat/themes/circadia-light.tmTheme
+--theme="circadia-light"
 
 # Show line numbers, Git modifications and file header (but no grid)
 --style="numbers,changes,header"

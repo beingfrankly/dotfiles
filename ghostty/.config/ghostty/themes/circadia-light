@@ -1,0 +1,23 @@
+# Circadia Warm Parchment — adapted from upstream ports/kitty/circadia-light.conf
+background = #f7f2e6
+foreground = #28323a
+selection-background = #e5dcc6
+selection-foreground = #28323a
+cursor-color = #0048b3
+cursor-text = #f7f2e6
+palette = 0=#e5dcc6
+palette = 1=#843900
+palette = 2=#005f2f
+palette = 3=#095b62
+palette = 4=#0048b3
+palette = 5=#7a1f7a
+palette = 6=#095b62
+palette = 7=#28323a
+palette = 8=#43505c
+palette = 9=#1c60a2
+palette = 10=#005f2f
+palette = 11=#1c4470
+palette = 12=#0048b3
+palette = 13=#4b1fa3
+palette = 14=#0048b3
+palette = 15=#28323a

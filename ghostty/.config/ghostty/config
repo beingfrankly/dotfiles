@@ -1,8 +1,8 @@
 # ===== Font Configuration =====
 font-family = JetBrainsMono Nerd Font
 font-size = 14
-adjust-cell-height = 20%
-font-thicken = true
+adjust-cell-height = 25%
+font-thicken = false
 
 # ===== Cursor =====
 cursor-style = block
@@ -15,8 +15,8 @@ shell-integration-features = no-cursor,sudo,no-title
 background-opacity = 1.00
 background-blur = false
 
-# Luna Theme (loaded from ~/.config/ghostty/themes/luna)
-theme = luna
+# Circadia Warm Parchment
+theme = circadia-light
 
 # Custom shader for cursor effects
 custom-shader = ~/.config/ghostty/shaders/cursor_warp.glsl

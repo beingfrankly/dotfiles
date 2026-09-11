@@ -1,63 +1,59 @@
-# luna theme for delta (git diff viewer)
-# Palette from https://github.com/WTFox/luna.nvim (lua/luna/palette.lua)
+# circadia-light theme for delta (git diff viewer)
+# Palette from https://github.com/tanmaymanojgandhi/circadia
 # Include this in your ~/.gitconfig with:
 # [include]
 #     path = ~/.config/theme/delta.gitconfig
 
 [delta]
-    features = luna
+    features = circadia-light
+    light = true
+    syntax-theme = circadia-light
     side-by-side = true
     line-numbers = true
     navigate = true
 
-[delta "luna"]
-    # Minus (deletions) - luna bg_delete / error
-    minus-style                   = syntax "#40000a"
-    minus-non-emph-style          = syntax "#40000a"
-    minus-emph-style              = syntax "#70282f"
-    minus-empty-line-marker-style = syntax "#40000a"
-    line-numbers-minus-style      = "#e08585"
+[delta "circadia-light"]
+    # Minus (deletions) - circadia-light bg_delete / error
+    minus-style                   = syntax "#f2ddd3"
+    minus-non-emph-style          = syntax "#f2ddd3"
+    minus-emph-style              = syntax "#e7bfb4"
+    minus-empty-line-marker-style = syntax "#f2ddd3"
+    line-numbers-minus-style      = "#a12622"
 
-    # Plus (additions) - luna git.add / ok
-    plus-style                    = syntax "#152017"
-    plus-non-emph-style           = syntax "#152017"
-    plus-emph-style               = syntax "#263d2b"
-    plus-empty-line-marker-style  = syntax "#152017"
-    line-numbers-plus-style       = "#6fbe80"
+    # Plus (additions) - circadia-light git.add / ok
+    plus-style                    = syntax "#e4ebd7"
+    plus-non-emph-style           = syntax "#e4ebd7"
+    plus-emph-style               = syntax "#cbdcb9"
+    plus-empty-line-marker-style  = syntax "#e4ebd7"
+    line-numbers-plus-style       = "#005f2f"
 
-    # Line numbers - luna grey_warm
-    line-numbers-zero-style       = "#605958"
-    line-numbers-left-style       = "#605958"
-    line-numbers-right-style      = "#605958"
+    # Line numbers - circadia-light grey_warm
+    line-numbers-zero-style       = "#524b42"
+    line-numbers-left-style       = "#524b42"
+    line-numbers-right-style      = "#524b42"
 
-    # General - luna signal / warning
-    file-style = "#c2916a" bold
-    file-decoration-style = "#c2916a" ul
-    hunk-header-style = "#d9a35a" bold
-    hunk-header-decoration-style = "#d9a35a" box
+    # General - circadia-light signal / warning
+    file-style = "#843900" bold
+    file-decoration-style = "#843900" ul
+    hunk-header-style = "#095b62" bold
+    hunk-header-decoration-style = "#095b62" box
 
-    # Commit - luna func
-    commit-style = "#75a1c7" bold
-    commit-decoration-style = "#75a1c7" box
+    # Commit - circadia-light func
+    commit-style = "#0048b3" bold
+    commit-decoration-style = "#0048b3" box
 
     # Whitespace
-    whitespace-error-style = "#e08585" reverse
+    whitespace-error-style = "#a12622" reverse
 
-    # Blame - luna surfaces, dark to light
-    blame-palette = "#060606" "#1c1c1c" "#1f1f1f" "#333333"
+    # Blame - circadia-light surfaces, dark to light
+    blame-palette = "#f7f2e6" "#eee7d6" "#eee7d6" "#d7cdb7"
     blame-code-style = syntax
 
     # Merge conflict
     merge-conflict-begin-symbol = "⮜"
     merge-conflict-end-symbol = "⮞"
-    merge-conflict-ours-diff-header-style = "#d9a35a" bold
-    merge-conflict-theirs-diff-header-style = "#d9a35a" bold
+    merge-conflict-ours-diff-header-style = "#095b62" bold
+    merge-conflict-theirs-diff-header-style = "#095b62" bold
 
-    # Inline hints - luna comment
-    inline-hint-style = "#7c7c7c"
-
-# luna color reference:
-# Background: #060606      Surface: #1c1c1c / #1f1f1f / #333333
-# Foreground: #e4e4e8      Comment: #7c7c7c    Grey warm: #605958
-# error #e08585  warning #d9a35a  info #8c9cb8  hint #b09080  ok #6fbe80
-# keyword #e19067  func #75a1c7  type #c4a8d6  string #9eb38e  signal #c2916a
+    # Inline hints - circadia-light comment
+    inline-hint-style = "#524b42"

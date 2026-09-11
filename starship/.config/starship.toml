@@ -14,28 +14,28 @@ format = """
 [╭─](bold green)$username$hostname$directory$git_branch$git_status$nodejs$python$golang$rust$docker_context
 [╰─](bold green)$character"""
 
-# ===== luna palette =====
-# https://github.com/WTFox/luna.nvim (extras/starship)
+# ===== circadia-light palette =====
+# https://github.com/tanmaymanojgandhi/circadia
 # Must stay above every [module] table, or TOML nests it under the previous table.
-palette = "luna"
+palette = "circadia-light"
 
-[palettes.luna]
-black = "#000000"
-red = "#e08585"
-green = "#6fbe80"
-yellow = "#c2916a"
-blue = "#75a1c7"
-purple = "#c4a8d6"
-cyan = "#75a1c7"
-white = "#c7c7c7"
-bright-black = "#888888"
-bright-red = "#e08585"
-bright-green = "#6fbe80"
-bright-yellow = "#d9a35a"
-bright-blue = "#8c9cb8"
-bright-purple = "#c4a8d6"
-bright-cyan = "#75a1c7"
-bright-white = "#ffffff"
+[palettes.circadia-light]
+black = "#e5dcc6"
+red = "#a12622"
+green = "#005f2f"
+yellow = "#843900"
+blue = "#0048b3"
+purple = "#7a1f7a"
+cyan = "#0048b3"
+white = "#46535f"
+bright-black = "#43505c"
+bright-red = "#a12622"
+bright-green = "#005f2f"
+bright-yellow = "#095b62"
+bright-blue = "#1c60a2"
+bright-purple = "#7a1f7a"
+bright-cyan = "#0048b3"
+bright-white = "#28323a"
 
 [character]
 success_symbol = "[❯](bold green)"
