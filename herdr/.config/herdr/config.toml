@@ -1,0 +1,51 @@
+onboarding = false
+[ui.toast]
+delivery = "herdr"
+
+[ui]
+sidebar_collapsed_mode = "hidden"
+tab_bar_position = "bottom"
+hide_tab_bar_when_single_tab = true
+pane_borders = true
+pane_outer_borders = false
+pane_gaps = false
+pane_scrollbars = false
+show_agent_labels_on_pane_borders = true
+
+agent_panel_sort = "spaces"
+status_indicators = "dots"
+[theme]
+name = "terminal"
+auto_switch = false
+
+# Circadia Warm Parchment palette — https://github.com/tanmaymanojgandhi/circadia
+# Explicit row backgrounds keep selections readable with dark text.
+[theme.custom]
+sidebar_bg  = "#eee7d6"
+active_row_bg = "#e5dcc6"
+selection_bg = "#e5dcc6"
+panel_bg    = "#eee7d6"
+surface0    = "#f7f2e6"
+surface1    = "#eee7d6"
+surface_dim = "#f7f2e6"
+overlay0    = "#43505c"
+overlay1    = "#46535f"
+text        = "#28323a"
+subtext0    = "#46535f"
+accent      = "#0048b3"
+teal        = "#0048b3"
+blue        = "#0048b3"
+mauve       = "#7a1f7a"
+green       = "#005f2f"
+yellow      = "#095b62"
+peach       = "#843900"
+red         = "#a12622"
+
+[[keys.command]]
+key = "prefix+k"
+type = "plugin_action"
+command = "herdr-workflows.launch"
+description = "launch a herdr-workflows workflow (picker)"
+
+[ui.sound]
+enabled = false

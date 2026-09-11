@@ -19,6 +19,13 @@ zsh/.config/zsh/plugins/
 # Karabiner auto-generated
 karabiner/.config/karabiner/automatic_backups/
 
+# Herdr writes its runtime state beside its config: logs (herdr-server.log reaches
+# megabytes), unix sockets, session.json, plugins.json, release-notes.json, and
+# plugins/github/* which are cloned upstream repos. This repo is PUBLIC, so the
+# package allows config.toml only.
+herdr/.config/herdr/*
+!herdr/.config/herdr/config.toml
+
 # Claude workspace files (any stow package; CLAUDE.md stays tracked because these are file/subdir rules, not a .claude/ dir rule)
 **/.claude/settings.local.json
 # settings.json too: the harness writes generated environment intelligence into it
@@ -45,3 +52,6 @@ karabiner/.config/karabiner/automatic_backups/
 # Editor/IDE
 /.claude/
 !claude/
+
+# Neovim writes this log into the current directory on a server start failure.
+nvim.log
