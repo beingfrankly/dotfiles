@@ -145,3 +145,29 @@ st() {
   STGUIAPIKEY="$apikey" \
     "$bin" cli "$@"
 }
+
+# ---------------------------------------------------------------------------
+# mcrcon — send RCON commands to the running Minecraft server container.
+#
+# Uses the rcon-cli binary bundled in the itzg/minecraft-server image, which
+# auto-reads the RCON port/password from the container's environment.
+#
+# Usage:
+#   mcrcon list            # run a single command
+#   mcrcon "say hello"     # quote multi-word commands
+#   mcrcon                 # no args → interactive session (Ctrl-D to exit)
+# ---------------------------------------------------------------------------
+mcrcon() {
+  local container="mcserver-mc-1"
+
+  if ! docker ps --format '{{.Names}}' | grep -qx "$container"; then
+    print -u2 "mcrcon: container '$container' is not running"
+    return 1
+  fi
+
+  if [ $# -eq 0 ]; then
+    docker exec -i "$container" rcon-cli
+  else
+    docker exec "$container" rcon-cli "$@"
+  fi
+}
