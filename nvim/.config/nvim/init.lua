@@ -1,5 +1,5 @@
 -- Expose RPC socket for MCP server integration (only for primary instance)
-if not vim.env.NVIM then
+if not vim.env.NVIM and not vim.env.HWF_REVIEW then
   local sock = '/tmp/nvim.sock'
   if not pcall(vim.fn.serverstart, sock) then
     os.remove(sock)

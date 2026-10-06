@@ -59,7 +59,7 @@ vim.pack.add({
   'https://github.com/folke/lazydev.nvim',
   { src = 'https://gitlab.com/schrieveslaach/sonarlint.nvim', name = 'sonarlint.nvim' },
   'https://github.com/iamcco/markdown-preview.nvim',
-  'https://github.com/MeanderingProgrammer/render-markdown.nvim',
+  'https://github.com/OXY2DEV/markview.nvim',
   'https://github.com/dhruvasagar/vim-table-mode',
 }, { load = true })
 
